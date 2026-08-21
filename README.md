@@ -1,16 +1,26 @@
-# README
+# Fluent Drummer Scribe
 
-Readme for Groove Scribe
+Fluent Drummer Scribe is the exercise-authoring tool for
+[fluentdrummer.com](https://fluentdrummer.com). It is a lightly rebranded fork
+of [GrooveScribe](https://github.com/montulli/GrooveScribe) by Lou Montulli and
+Mike Johnston, and remains licensed under the **GPL v2.0** (see
+[LICENSE.txt](LICENSE.txt)).
+
+Only the branding and accent colours differ from upstream — the groove logic,
+URL format, and playback engine are unchanged.
 
 ### What is this repository for?
 
-- Groove Scribe is an HTML application for drummers. Groove Scribe is a point and click authoring system to create drum sheet music as well as a practice tool for learning and practicing grooves and exercises.
+- A point-and-click authoring system for creating drum sheet music, plus a
+  practice tool for learning and drilling grooves and exercises. It is an HTML
+  application that runs entirely in the browser.
 
 ### How do I use it
 
-- Hosted here: http://www.mikeslessons.com/gscribe/
-- Also here: http://montulli.github.io/GrooveScribe/
-- Examples and html tests: http://montulli.github.io/GrooveScribe/html_examples_and_tests/index.html
+- Upstream project and original hosting:
+  - http://www.mikeslessons.com/gscribe/
+  - http://montulli.github.io/GrooveScribe/
+  - Examples and html tests: http://montulli.github.io/GrooveScribe/html_examples_and_tests/index.html
 
 ### How do I get set up?
 
@@ -98,10 +108,21 @@ with `npm run test:e2e:update` when a change is _meant_ to alter output.
 - Add or update tests for behavior changes (see [tests/README.md](tests/README.md))
 - Code review
 
+### Licence and attribution
+
+Fluent Drummer Scribe is based on GrooveScribe by Lou Montulli and Mike
+Johnston, GPL v2.0 — source: https://github.com/antjamesdrummer/GrooveScribe
+
+The original work is Copyright 2015-2020 Lou Montulli, Mike Johnston, and this
+fork is distributed under the same **GPL v2.0** terms; the full text is in
+[LICENSE.txt](LICENSE.txt). Upstream repository:
+https://github.com/montulli/GrooveScribe
+
 ### Who do I talk to?
 
-- File issues in github please: https://github.com/montulli/GrooveScribe/issues
-- lou at montulli dot org is the admin and author. He cannot answer every email, so please use good judgement before emailing.
+- Issues with this fork: https://github.com/antjamesdrummer/GrooveScribe/issues
+- Upstream issues: https://github.com/montulli/GrooveScribe/issues
+- lou at montulli dot org is the admin and author of the upstream project. He cannot answer every email, so please use good judgement before emailing.
 
 To edit this Readme:
 

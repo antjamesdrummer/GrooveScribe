@@ -4,7 +4,7 @@
 	<!--Copyright 2015-2020 Lou Montulli, Mike Johnston  GPL V2.0 Please See LICENSE.txt for more details -->
 
     <head>
-		<title>Groove Scribe</title>
+		<title>Fluent Drummer Scribe</title>
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="mobile-web-app-capable" content="yes">
@@ -13,8 +13,8 @@
 		<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 
 		<!--meta property="og:image" content="https://mikeslessons.com/groove/images/GScribe_Logo_on_orange.png"> -->
-		<meta property="og:description" content="Groove Scribe allows drummers to easily create grooves, listen, share, print sheet music, and more. Use the Groove Scribe to create new grooves, figure out the groove to your favorite song, or write down the groove to your latest tune."/>
-		<meta property="og:site_name" content="GrooveScribe at MikesLessons.com"/>
+		<meta property="og:description" content="Fluent Drummer Scribe allows drummers to easily create grooves, listen, share, print sheet music, and more. Use Fluent Drummer Scribe to create new grooves, figure out the groove to your favorite song, or write down the groove to your latest tune."/>
+		<meta property="og:site_name" content="Fluent Drummer Scribe"/>
 
 		<script>
 			document.write('<meta property="og:image" content="https://gscribe-png-image.herokuapp.com/' + window.location.search + '">');
@@ -65,7 +65,7 @@
 		<div class="nonPrintable">
 			<div id="LeftHandNav">
 				<span id="divisionButtonContainer">
-					<span id="logoInSubdivision" class="left-button-content"><img src="images/GScribe_Logo_lone_g.svg"></span>
+					<span id="logoInSubdivision" class="left-button-content"><span id="logoMarkUpperLeft">FD</span></span>
 					<span class="left-button edit-block" id="timeLabel" onclick="myGrooveWriter.timeSigPopupOpen();"><span class="left-button-content"><span><span id="timeSigLabel" class="buttonFraction"><sup>4</sup>/<sub>4</sub></span><span id="timeSubLabel">TIME</span></span></span></span>
 					<span class="left-button subdivision edit-block" id="subdivision_8ths"  onclick="myGrooveWriter.changeDivision(8);"><span class="left-button-content"><span><span class="buttonFraction"><sup>1</sup>/<sub>8</sub></span>NOTES</span></span></span>
 					<span class="left-button subdivision edit-block" id="subdivision_16ths" onclick="myGrooveWriter.changeDivision(16);"><span class="left-button-content"><span><span class="buttonFraction"><sup>1</sup>/<sub>16</sub></span>NOTES</span></span></span>
@@ -83,7 +83,7 @@
 
 			</div>
 			<div id="TopNav" class="fullWidthEle">
-				<span id="logoTextUpperLeft"><img src="images/GScribe_Logo_word_stack.svg"></span>
+				<span id="logoTextUpperLeft">Fluent Drummer Scribe</span>
 				<span id="upperLeft">
 					<span id="metronomeContainer">
 						<span id="metronomeLabel">METRONOME:</span>
@@ -150,8 +150,8 @@
 				</div>
 
 				<span id="hiddenDescription">
-					GrooveScribe allows drummers to easily create grooves, listen, share, print sheet music, and more.
-					Use the GrooveScribe to create new grooves, figure out the groove to your favorite song,
+					Fluent Drummer Scribe allows drummers to easily create grooves, listen, share, print sheet music, and more.
+					Use Fluent Drummer Scribe to create new grooves, figure out the groove to your favorite song,
 					or write down the groove to your latest tune.
 				</span>
 
@@ -188,6 +188,11 @@
 				</div>
 
 				<div id="totalPlayTime">
+				</div>
+
+				<div id="attributionFooter" class="fullWidthEle nonPrintable">
+					Based on GrooveScribe by Lou Montulli and Mike Johnston, GPL v2.0 &mdash; source:
+					<a href="https://github.com/antjamesdrummer/GrooveScribe">https://github.com/antjamesdrummer/GrooveScribe</a>
 				</div>
 			</div>
 		</div>

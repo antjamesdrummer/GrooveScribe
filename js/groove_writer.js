@@ -123,7 +123,7 @@ function GrooveWriter() {
   );
 
   // private vars in the scope of the class
-  var class_app_title = 'Groove Scribe';
+  var class_app_title = 'Fluent Drummer Scribe';
   var class_permutation_type = 'none';
   var class_advancedEditIsOn = false;
   var class_measure_for_note_label_click = 0;

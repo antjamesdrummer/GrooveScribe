@@ -95,9 +95,14 @@ body {
 #logoTextUpperLeft {
   padding: 9px 10px 6px 5px;
   display: inline-block;
-}
-#logoTextUpperLeft img {
   height: 30px;
+  line-height: 30px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: #fff;
+  vertical-align: top;
 }
 #upperLeft {
   margin-top: 12px;
@@ -168,8 +173,15 @@ body {
 #logoInSubdivision {
   background-color: #000;
 }
-#logoInSubdivision img {
+#logoMarkUpperLeft {
+  display: block;
   height: 40px;
+  line-height: 40px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #2563eb;
 }
 .left-button {
   display: block;
@@ -197,12 +209,12 @@ body {
   height: 48px; /* Override from above */
 }
 #timeSigLabel {
-  color: #62c04c;
+  color: #60a5fa;
   font-size: 20px;
   margin-bottom: -5px;
 }
 #timeSubLabel {
-  color: #62c04c;
+  color: #60a5fa;
   font-size: 12px;
 }
 .left-button.disabled,
@@ -213,22 +225,22 @@ body {
 .left-button.buttonSelected,
 .left-button.buttonSelected:hover {
   /* is subdivision and is selected */
-  background: #2484c0;
+  background: #2563eb;
   color: #fff;
   cursor: auto;
   transform: scale(1.1);
 }
 .myButton:hover,
 .left-button:hover {
-  border-top-color: #28597a;
+  border-top-color: #1d4ed8;
   background: #555555;
   color: #ccc;
   transform: scale(1.05);
 }
 .myButton:active,
 .left-button:active {
-  border-top-color: #1b435e;
-  background: #1b435e;
+  border-top-color: #1e40af;
+  background: #1e40af;
 }
 .buttonFraction {
   /* The number above "triplet" in the .subdivision 1/4, 1/8, etc */
@@ -236,7 +248,7 @@ body {
   font-size: 18px;
 }
 #advancedEditAnchor.buttonSelected {
-  background: #009ffa;
+  background: #2563eb;
   color: #fff;
   font-size: 14px;
 }
@@ -1240,6 +1252,14 @@ input[type='checkbox']:not(:checked) + label {
 }
 .totalTimeNum {
   color: #eee;
+}
+#attributionFooter {
+  padding: 12px 10px 24px 10px;
+  font-size: 12px;
+  color: #999;
+}
+#attributionFooter a {
+  color: #60a5fa;
 }
 .myCheckbox {
   display: none;

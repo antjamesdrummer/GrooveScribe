@@ -1,15 +1,15 @@
 :root {
-  --header-bg-color: #243640;
-  --header-bg-start-color: #2a404d;
-  --header-bg-end-color: #1c2b33;
+  --header-bg-color: #2563eb;
+  --header-bg-start-color: #2563eb;
+  --header-bg-end-color: #1d4ed8;
   --bpm-bg-color: #222222;
   --side-bg-color: #393939;
   --bottom-bg-color: #393939;
-  --side-highlight-bg-color: #2484c0;
+  --side-highlight-bg-color: #2563eb;
   --note-overlay-bg-color: #bdebdd;
 
-  --highlight-color: #2484c0;
-  --highlight-color-on-white: #2484c0;
+  --highlight-color: #2563eb;
+  --highlight-color-on-white: #2563eb;
 }
 
 /* this is for debugging layout issues - puts a read border around everything */
@@ -47,13 +47,13 @@ body {
   display: block;
   width: calc(50% - 83px);
   min-width: 500px;
-  border: 1px solid #009;
+  border: 1px solid #2563eb;
   padding-left: 0px;
   margin: 0px 0px 0px 0px;
 }
 .playerControl.small {
   width: 90px;
-  border: 1px solid #009;
+  border: 1px solid #2563eb;
   padding-left: 0px;
 }
 .playerControlsRow {
@@ -104,11 +104,11 @@ body {
   transition: all 0.6s ease-in-out;
 }
 .midiExpandImage.small:hover {
-  color: #68c2ff;
+  color: #60a5fa;
   transform: scale(1.4);
 }
 .midiExpandImage.large:hover {
-  color: #68c2ff;
+  color: #60a5fa;
   transform: scale(0.8);
 }
 .midiPlayImage:before {
@@ -161,7 +161,7 @@ body {
   vertical-align: top;
   padding: 0px;
   margin: 8px 10px 0px 0px;
-  color: #66c0fe;
+  color: #60a5fa;
   height: 8px;
   width: 100%;
   flex: 1;
