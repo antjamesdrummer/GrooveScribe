@@ -22,24 +22,21 @@ function installAbcGlobal() {
 }
 
 // Builds the popup fixture used by fillInFullURLInFullURLPopup / show_.. /
-// close_.. / shortenerCheckboxChanged / embedCodeCheckboxChanged, matching the
-// ids in index.html (~line 441-453): #fullURLPopup, #shortenerCheckbox,
-// #embedCodeCheckbox, #fullURLPopupTextField.
+// close_.. / embedCodeCheckboxChanged, matching the ids in index.html:
+// #fullURLPopup, #embedCodeCheckbox, #fullURLPopupTextField.
 function buildURLPopupDOM() {
   const div = document.createElement('div');
   div.innerHTML = `
     <div id="fullURLPopup" style="display:none">
-      <input type="checkbox" id="shortenerCheckbox">
       <input type="checkbox" id="embedCodeCheckbox">
       <input type="text" id="fullURLPopupTextField">
     </div>`;
   document.body.appendChild(div);
 }
 
-// A fake `XMLHttpRequest` that records open()/send() calls and lets tests
-// manually drive `onload`, so we can exercise shortenerCheckboxChanged /
-// embedCodeCheckboxChanged's URL-shortening branch without making a real
-// network call to the (real, third-party) firebasedynamiclinks endpoint.
+// A fake `XMLHttpRequest` that records open()/send() calls. The URL shortener
+// that used to POST to a third-party endpoint has been removed, so these tests
+// use it to prove the share flow makes no network call at all.
 function installFakeXHR() {
   const instances = [];
   class FakeXHR {
@@ -105,27 +102,25 @@ describe('GrooveWriter url-export (js/groove_writer.js)', () => {
   });
 
   describe('fillInFullURLInFullURLPopup / show_FullURLPopup / close_FullURLPopup', () => {
-    it('fills the URL text field, shows the popup, and unchecks the short/embed checkboxes', async () => {
+    it('fills the URL text field, shows the popup, and unchecks the embed checkbox', async () => {
       const gw = await newGrooveWriter();
       buildGridDOM(gw, 1);
       buildURLPopupDOM();
-      // Pre-check both boxes to prove fillInFullURLInFullURLPopup resets them.
-      document.getElementById('shortenerCheckbox').checked = true;
+      // Pre-check the box to prove fillInFullURLInFullURLPopup resets it.
       document.getElementById('embedCodeCheckbox').checked = true;
 
       gw.fillInFullURLInFullURLPopup();
 
       expect(document.getElementById('fullURLPopup').style.display).toBe('block');
       expect(document.getElementById('fullURLPopupTextField').value).toContain('TimeSig=4/4');
-      expect(document.getElementById('shortenerCheckbox').checked).toBe(false);
       expect(document.getElementById('embedCodeCheckbox').checked).toBe(false);
     });
 
-    it('throws if the popup checkboxes are missing from the DOM (unguarded document.getElementById lookups)', async () => {
+    it('throws if the popup checkbox is missing from the DOM (unguarded document.getElementById lookup)', async () => {
       // Observed quirk: unlike the `popup` variable itself (which IS guarded
-      // with `if (popup)`), the two checkbox lookups at the top of the
-      // function are not null-checked, so building only #fullURLPopup
-      // without its checkboxes throws instead of silently no-op'ing.
+      // with `if (popup)`), the checkbox lookup at the top of the function is
+      // not null-checked, so building only #fullURLPopup without its checkbox
+      // throws instead of silently no-op'ing.
       const gw = await newGrooveWriter();
       buildGridDOM(gw, 1);
 
@@ -203,70 +198,8 @@ describe('GrooveWriter url-export (js/groove_writer.js)', () => {
     });
   });
 
-  describe('shortenerCheckboxChanged / embedCodeCheckboxChanged', () => {
-    it('shortenerCheckboxChanged, when unchecked, fills the plain full URL synchronously (no network call)', async () => {
-      const instances = installFakeXHR();
-      const gw = await newGrooveWriter();
-      buildGridDOM(gw, 1);
-      buildURLPopupDOM();
-      document.getElementById('shortenerCheckbox').checked = false;
-
-      gw.shortenerCheckboxChanged();
-
-      expect(instances).toHaveLength(0);
-      expect(document.getElementById('fullURLPopupTextField').value).toContain('TimeSig=4/4');
-      expect(document.getElementById('fullURLPopup').style.display).toBe('block');
-    });
-
-    it('shortenerCheckboxChanged, when checked, POSTs to the firebasedynamiclinks shortener with the full URL', async () => {
-      const instances = installFakeXHR();
-      const gw = await newGrooveWriter();
-      buildGridDOM(gw, 1);
-      buildURLPopupDOM();
-      document.getElementById('shortenerCheckbox').checked = true;
-
-      gw.shortenerCheckboxChanged();
-
-      expect(instances).toHaveLength(1);
-      expect(instances[0].method).toBe('POST');
-      expect(instances[0].url).toContain('firebasedynamiclinks.googleapis.com/v1/shortLinks');
-      const body = JSON.parse(instances[0].sentBody);
-      expect(body.dynamicLinkInfo.link).toContain('TimeSig=4/4');
-    });
-
-    it('shortenerCheckboxChanged fills the field and re-checks the box when the shortener XHR succeeds', async () => {
-      const instances = installFakeXHR();
-      const gw = await newGrooveWriter();
-      buildGridDOM(gw, 1);
-      buildURLPopupDOM();
-      document.getElementById('shortenerCheckbox').checked = true;
-
-      gw.shortenerCheckboxChanged();
-      Object.defineProperty(instances[0], 'status', { value: 200, configurable: true });
-      instances[0].responseText = JSON.stringify({ shortLink: 'https://gscribe.com/share/xyz' });
-      instances[0].onload();
-
-      expect(document.getElementById('fullURLPopupTextField').value).toBe(
-        'https://gscribe.com/share/xyz'
-      );
-      expect(document.getElementById('shortenerCheckbox').checked).toBe(true);
-    });
-
-    it('shortenerCheckboxChanged unchecks the box when the shortener XHR fails', async () => {
-      const instances = installFakeXHR();
-      const gw = await newGrooveWriter();
-      buildGridDOM(gw, 1);
-      buildURLPopupDOM();
-      document.getElementById('shortenerCheckbox').checked = true;
-
-      gw.shortenerCheckboxChanged();
-      Object.defineProperty(instances[0], 'status', { value: 500, configurable: true });
-      instances[0].onload();
-
-      expect(document.getElementById('shortenerCheckbox').checked).toBe(false);
-    });
-
-    it('embedCodeCheckboxChanged, when checked, fills an <iframe> embed snippet synchronously (no network call)', async () => {
+  describe('embedCodeCheckboxChanged', () => {
+    it('when checked, fills an <iframe> embed snippet synchronously (no network call)', async () => {
       const instances = installFakeXHR();
       const gw = await newGrooveWriter();
       buildGridDOM(gw, 1);
@@ -280,10 +213,9 @@ describe('GrooveWriter url-export (js/groove_writer.js)', () => {
       expect(value).toMatch(/^<iframe width="100%" height="240" src="/);
       // "display" destination swaps index.html for GrooveEmbed.html.
       expect(value).toContain('GrooveEmbed.html?');
-      expect(document.getElementById('shortenerCheckbox').checked).toBe(false);
     });
 
-    it('embedCodeCheckboxChanged, when unchecked, falls back to the shortener XHR path', async () => {
+    it('when unchecked, falls back to the plain full URL', async () => {
       const instances = installFakeXHR();
       const gw = await newGrooveWriter();
       buildGridDOM(gw, 1);
@@ -292,8 +224,22 @@ describe('GrooveWriter url-export (js/groove_writer.js)', () => {
 
       gw.embedCodeCheckboxChanged();
 
-      expect(instances).toHaveLength(1);
-      expect(instances[0].url).toContain('firebasedynamiclinks.googleapis.com/v1/shortLinks');
+      expect(instances).toHaveLength(0);
+      expect(document.getElementById('fullURLPopupTextField').value).toContain('TimeSig=4/4');
+    });
+
+    it('the URL shortener is gone: sharing never calls a third-party endpoint', async () => {
+      const instances = installFakeXHR();
+      const gw = await newGrooveWriter();
+      buildGridDOM(gw, 1);
+      buildURLPopupDOM();
+
+      gw.fillInFullURLInFullURLPopup();
+      gw.embedCodeCheckboxChanged();
+
+      expect(instances).toHaveLength(0);
+      expect(gw.shortenerCheckboxChanged).toBeUndefined();
+      expect(document.getElementById('fullURLPopupTextField').value).not.toContain('gscribe.com');
     });
   });
 

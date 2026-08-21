@@ -410,7 +410,9 @@
 			<div id="fullURLPopupSubTitle">Use this URL to share or save this groove</div>
 			<div id="fullURLPopupSubSubTitle">(You can also bookmark this page)</div>
 			<div id="fullURLPopupCheckboxes">
-				<span><label  id="shortURLLabel" class="fullURLPopupCheckboxLabel"><input type="checkbox" id="shortenerCheckbox" onchange="myGrooveWriter.shortenerCheckboxChanged();">Short URL</label></span>
+				<!-- "Short URL" removed with the rebrand: it minted gscribe.com links via
+				     the upstream project's Firebase account. The full URL below encodes the
+				     whole groove, so it needs no redirect service. -->
 				<span><label id="embedCodeLabel" class="fullURLPopupCheckboxLabel"><input type="checkbox" id="embedCodeCheckbox" onchange="myGrooveWriter.embedCodeCheckboxChanged();">Embed Code</label></span>
 			</div>
 			<div id="fullURLPopupTextFieldContainer"><input type="text" id="fullURLPopupTextField"></div>

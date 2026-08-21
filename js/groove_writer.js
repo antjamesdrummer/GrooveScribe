@@ -3394,7 +3394,6 @@ function GrooveWriter() {
 
   root.fillInFullURLInFullURLPopup = function () {
     document.getElementById('embedCodeCheckbox').checked = false; // uncheck embedCodeCheckbox
-    document.getElementById('shortenerCheckbox').checked = false; // uncheck shortenerCheckbox
 
     var popup = document.getElementById('fullURLPopup');
     if (popup) {
@@ -3468,10 +3467,8 @@ function GrooveWriter() {
       },
     });
 
-    // open the popup with full url and try to load short in the background
+    // open the popup with the full, self-contained groove URL
     root.fillInFullURLInFullURLPopup();
-    // default is to use shortened url
-    fillInShortenedURLInFullURLPopup(get_FullURLForPage(), 'fullURLPopupTextField');
   };
 
   root.copyShareURLToClipboard = function () {
@@ -3490,43 +3487,14 @@ function GrooveWriter() {
     if (popup) popup.style.display = 'none';
   };
 
-  function fillInShortenedURLInFullURLPopup(fullURL, cssIdOfTextFieldToFill) {
-    document.getElementById('embedCodeCheckbox').checked = false; // uncheck embedCodeCheckbox, because it is not compatible
-
-    var params = {
-      dynamicLinkInfo: {
-        domainUriPrefix: 'https://gscribe.com/share',
-        link: fullURL,
-      },
-    };
-
-    var xhr = new XMLHttpRequest();
-    xhr.open(
-      'POST',
-      'https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=AIzaSyBx4So11fGFPgTI62nP-JmxrxHmuRpJ120'
-    );
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        // success
-        var response = JSON.parse(xhr.responseText);
-        var textField = document.getElementById(cssIdOfTextFieldToFill);
-        textField.value = response.shortLink;
-        // select the URL for copy/paste
-        textField.focus();
-        textField.select();
-        document.getElementById('shortenerCheckbox').checked = true; // this is now true if isn't already
-      } else {
-        document.getElementById('shortenerCheckbox').checked = false; // request failed
-      }
-    };
-    xhr.send(JSON.stringify(params));
-  }
+  // NOTE: the URL shortener was removed with the rebrand. It ran on the upstream
+  // project's Firebase Dynamic Links account and minted gscribe.com links, so
+  // every shared link depended on infrastructure this fork does not control. The
+  // full URL encodes the whole groove and needs no redirect service to survive.
 
   // embed looks something like this:
   // <iframe width="100%" height="240" src="https://hosting.com/path/GrooveDisplay.html?Div=16&Title=Example..." frameborder="0" ></iframe>
   function fillInEmbedURLInFullURLPopup(fullURL, cssIdOfTextFieldToFill) {
-    document.getElementById('shortenerCheckbox').checked = false; // uncheck shortenerCheckbox, because it is not compatible
     document.getElementById('embedCodeCheckbox').checked = true; // this will be true if isn't already
 
     var embedText =
@@ -3540,19 +3508,11 @@ function GrooveWriter() {
     textField.select();
   }
 
-  root.shortenerCheckboxChanged = function () {
-    if (document.getElementById('shortenerCheckbox').checked) {
-      fillInShortenedURLInFullURLPopup(get_FullURLForPage(), 'fullURLPopupTextField');
-    } else {
-      root.fillInFullURLInFullURLPopup();
-    }
-  };
-
   root.embedCodeCheckboxChanged = function () {
     if (document.getElementById('embedCodeCheckbox').checked) {
       fillInEmbedURLInFullURLPopup(get_FullURLForPage('display'), 'fullURLPopupTextField');
     } else {
-      fillInShortenedURLInFullURLPopup(get_FullURLForPage(), 'fullURLPopupTextField');
+      root.fillInFullURLInFullURLPopup();
     }
   };
 
