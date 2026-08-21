@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { newGrooveUtils } from '../helpers/legacyLoader.js';
 
 // Regression coverage for the tempo & swing controls and the MIDI-player
@@ -358,7 +360,12 @@ describe('GrooveUtils MIDI player HTML & base locations', () => {
     it('getGrooveUtilsBaseLocation derives the app root from the module URL', () => {
       const base = gu.getGrooveUtilsBaseLocation();
       expect(base.endsWith('/')).toBe(true);
-      expect(base.endsWith('GrooveScribe/')).toBe(true);
+      // Assert the derivation, not the checkout's directory name: the base must
+      // be the parent of the js/ directory the module actually lives in. (This
+      // previously hardcoded "GrooveScribe/", so it failed for any clone whose
+      // folder was named anything else -- e.g. this fork's.)
+      expect(base.startsWith('file://')).toBe(true);
+      expect(fs.existsSync(fileURLToPath(base + 'js/groove_utils.js'))).toBe(true);
       // No longer the dead hardcoded Google Drive fallback.
       expect(base).not.toContain('googledrive.com');
     });

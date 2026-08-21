@@ -2591,9 +2591,9 @@ function GrooveWriter() {
 
     if (class_number_of_measures === 5)
       window.alert(
-        'Please be aware that the Groove Scribe is not designed to write an entire musical score.\n' +
+        'Please be aware that Fluent Drummer Scribe is not designed to write an entire musical score.\n' +
           'You can create as many measures as you want, but your browser may slow down as more measures are added.\n' +
-          'There are also many notation features that would be useful for score writing that are not part of Groove Scribe'
+          'There are also many notation features that would be useful for score writing that are not part of Fluent Drummer Scribe'
       );
   };
 

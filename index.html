@@ -8,18 +8,18 @@
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="mobile-web-app-capable" content="yes">
+		<link rel="icon" type="image/svg+xml" href="images/fd-icon.svg">
 		<link rel="icon" sizes="192x192" href="images/gscribe-icon-192.png">
 		<link rel="icon" sizes="96x96" href="images/gscribe-icon-96.png">
 		<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 
-		<!--meta property="og:image" content="https://mikeslessons.com/groove/images/GScribe_Logo_on_orange.png"> -->
 		<meta property="og:description" content="Fluent Drummer Scribe allows drummers to easily create grooves, listen, share, print sheet music, and more. Use Fluent Drummer Scribe to create new grooves, figure out the groove to your favorite song, or write down the groove to your latest tune."/>
 		<meta property="og:site_name" content="Fluent Drummer Scribe"/>
 
-		<script>
-			document.write('<meta property="og:image" content="https://gscribe-png-image.herokuapp.com/' + window.location.search + '">');
-		</script>
-		<meta property="og:image" content="https://mikeslessons.com/groove/images/GScribe_Logo_on_orange.png">
+		<!-- Social preview image. Served from this deployment rather than the
+		     upstream project's host. The old dynamic-preview service
+		     (gscribe-png-image.herokuapp.com) is not ours and is dropped. -->
+		<meta property="og:image" content="images/gscribe-icon-192.png">
 
 		<link rel="stylesheet" type="text/css" href="font-awesome/4.7.0/css/font-awesome.min.css">
 		<link rel="stylesheet" type="text/css" href="css/share-button.min.css">
