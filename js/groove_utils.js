@@ -503,7 +503,7 @@ function GrooveUtils() {
   //
 
   root.getUrlStringFromGrooveData = function (myGrooveData, url_destination) {
-    return _urlBuild(myGrooveData, url_destination);
+    return _urlBuild(myGrooveData, url_destination, root.getGrooveUtilsBaseLocation());
   };
 
   function setupHotKeys() {

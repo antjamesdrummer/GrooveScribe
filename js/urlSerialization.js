@@ -208,9 +208,12 @@ export function getGrooveDataFromUrlString(encodedURLData, config = {}) {
  *
  * @param {import('./grooveData.js').GrooveData} myGrooveData  The groove to serialize.
  * @param {string} [url_destination]  Optional base URL to prepend.
+ * @param {string} [editorBaseURL]  App root (trailing slash) used for the
+ *   'fullGrooveScribe' destination. GrooveUtils passes
+ *   getGrooveUtilsBaseLocation(); falls back to the current URL's directory.
  * @returns {string}
  */
-export function getUrlStringFromGrooveData(myGrooveData, url_destination) {
+export function getUrlStringFromGrooveData(myGrooveData, url_destination, editorBaseURL) {
   var fullURL = window.location.protocol + '//' + window.location.host + window.location.pathname;
 
   if (!url_destination) {
@@ -222,8 +225,10 @@ export function getUrlStringFromGrooveData(myGrooveData, url_destination) {
       fullURL = fullURL.replace('/gscribe', '/groove/GrooveEmbed.html');
     else fullURL += 'GrooveEmbed.html';
   } else if (url_destination == 'fullGrooveScribe') {
-    // asking for the full GrooveScribe link
-    fullURL = 'https://www.mikeslessons.com/gscribe';
+    // asking for the full editor link on whatever deployment is serving this
+    // app, rather than a hardcoded upstream host. Falls back to the current
+    // URL's own directory when no base is supplied.
+    fullURL = (editorBaseURL || fullURL.slice(0, fullURL.lastIndexOf('/') + 1)) + 'index.html';
   }
 
   fullURL += '?';

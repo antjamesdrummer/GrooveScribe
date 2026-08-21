@@ -300,14 +300,16 @@ if (typeof GrooveDisplay === 'undefined') {
         // console.log(abcNotation);
         var svgReturn = myGrooveUtils.renderABCtoSVG(abcNotation);
 
-        if (linkToEditor)
+        if (linkToEditor) {
+          // Link back to the editor of whatever deployment is serving this file
+          // (derived from the module's own URL) rather than a hardcoded upstream
+          // host, so embeds stay on this site wherever it is hosted.
+          var query =
+            GrooveDefinition.charAt(0) === '?' ? GrooveDefinition : '?' + GrooveDefinition;
+          var editorURL = myGrooveUtils.getGrooveUtilsBaseLocation() + 'index.html' + query;
           svgTarget.innerHTML =
-            '<a style="text-decoration: none" href="http://mikeslessons.com/gscribe/' +
-            GrooveDefinition +
-            '">' +
-            svgReturn.svg +
-            '</a>';
-        else svgTarget.innerHTML = svgReturn.svg;
+            '<a style="text-decoration: none" href="' + editorURL + '">' + svgReturn.svg + '</a>';
+        } else svgTarget.innerHTML = svgReturn.svg;
       };
 
       layoutFunction();
@@ -332,7 +334,7 @@ if (typeof GrooveDisplay === 'undefined') {
     // Add a groove to a page
     // URLEncodedGrooveData:  The URL Search data from the Groove Scribe application looks like ?TimeSig=4/4&Div=16&Title=Test...
     // showPlayer:  true/false   true to add the sound player to the page along with the sheet music
-    // linkToEditor: true/false  true to add a link back to Groove Scribe on the sheet music
+    // linkToEditor: true/false  true to add a link back to this site's editor on the sheet music
     // expandPlayer: true/false  true to have the sound player be full width by default.
     root.AddGrooveDisplayToPage = function (
       URLEncodedGrooveData,

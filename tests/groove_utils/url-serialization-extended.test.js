@@ -484,10 +484,11 @@ describe('GrooveUtils URL serialization (extended)', () => {
       expect(out).toContain('GrooveEmbed.html?');
     });
 
-    it('"fullGrooveScribe" replaces the whole origin+path with the hardcoded external URL', () => {
+    it('"fullGrooveScribe" points at this deployment\'s editor, not an external host', () => {
       const gd = gu.getGrooveDataFromUrlString('?TimeSig=4/4&Div=16');
       const out = gu.getUrlStringFromGrooveData(gd, 'fullGrooveScribe');
-      expect(out.startsWith('https://www.mikeslessons.com/gscribe?')).toBe(true);
+      expect(out).toContain('index.html?');
+      expect(out).not.toContain('mikeslessons.com');
     });
 
     it('an unrecognized destination string falls through unchanged, same as no destination', () => {

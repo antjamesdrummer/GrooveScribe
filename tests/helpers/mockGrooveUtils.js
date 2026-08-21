@@ -46,6 +46,8 @@ export function installMockGrooveUtils() {
     });
     this.createABCFromGrooveData = vi.fn(() => 'ABC-NOTATION');
     this.renderABCtoSVG = vi.fn(() => ({ svg: '<svg data-mock="1"></svg>' }));
+    // App root (trailing slash), used to build the editor link on embeds.
+    this.getGrooveUtilsBaseLocation = vi.fn(() => 'https://example.test/app/');
 
     // Side-effecting player / MIDI methods: spies only.
     this.setGrooveData = vi.fn();

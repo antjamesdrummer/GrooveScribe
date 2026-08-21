@@ -41,12 +41,22 @@ describe('AddGrooveDisplayToElementId', () => {
     expect(host.querySelector('.svgTarget').innerHTML).toContain('<svg');
   });
 
-  it('wraps the SVG in an editor link when linkToEditor is true', () => {
+  it('wraps the SVG in an editor link on this deployment when linkToEditor is true', () => {
     const host = makeHost();
     GD.AddGrooveDisplayToElementId('host', DEF, false, true, false);
     const anchor = host.querySelector('.svgTarget a');
     expect(anchor).toBeTruthy();
-    expect(anchor.getAttribute('href')).toBe('http://mikeslessons.com/gscribe/' + DEF);
+    // Derived from the app's own base location, not a hardcoded upstream host.
+    expect(anchor.getAttribute('href')).toBe('https://example.test/app/index.html' + DEF);
+    expect(anchor.getAttribute('href')).not.toContain('mikeslessons.com');
+  });
+
+  it('adds the missing "?" when the groove definition is passed without one', () => {
+    const host = makeHost();
+    GD.AddGrooveDisplayToElementId('host', 'TimeSig=4/4&Div=16', false, true, false);
+    expect(host.querySelector('.svgTarget a').getAttribute('href')).toBe(
+      'https://example.test/app/index.html?TimeSig=4/4&Div=16'
+    );
   });
 
   it('renders a bare SVG (no link) when linkToEditor is false', () => {
