@@ -125,7 +125,8 @@ export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
 									<div class="staff-line-2"></div>\
 									<div class="staff-line-3"></div>\
 									<div class="staff-line-4"></div>\
-									<div class="staff-line-5"></div>\n';
+									<div class="staff-line-5"></div>\
+									<div class="staff-line-6"></div>\n';
 
   // backgrounds for highlighting.  Evenly spaced cols of space
   newHTML +=

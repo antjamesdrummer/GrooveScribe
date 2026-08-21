@@ -318,6 +318,41 @@ body {
 .notes-row-container {
   display: inline-block;
 }
+
+/* ---------------------------------------------------------------------------
+ * Note-grid row metrics.
+ *
+ * The grid is a fixed-height stack in normal flow: each voice is a block with a
+ * hardcoded height, and the grey guide lines are absolutely positioned inside
+ * .notes-container at offsets that must equal the cumulative row heights. The
+ * tom rows toggle with `visibility` rather than `display`, so they keep their
+ * space when hidden and every offset below is therefore constant.
+ *
+ * These were hand-tuned pixel constants, which is why adding the mid tom row
+ * broke the alignment. They are now derived from the row heights below, so the
+ * whole set stays consistent: to add or remove a voice, change the row count
+ * used by --grid-row-* and add/remove the matching .staff-line-N rule.
+ *
+ * Each *-h value includes the 1px top + 1px bottom transparent border on the
+ * row containers, so it is the full border-box height a row occupies.
+ * ------------------------------------------------------------------------- */
+:root {
+  --grid-hh-h: 44px; /* hi-hat row      (42 content + 2 border) */
+  --grid-note-h: 30px; /* tom/snare rows  (28 content + 2 border) */
+  --grid-kick-h: 58px; /* kick row        (56 content + 2 border) */
+  /* The guide line sits just under its row's circles, 2px above the boundary. */
+  --grid-line-inset: 2px;
+
+  /* Cumulative row boundaries, top of .notes-container downwards. */
+  --grid-y1: var(--grid-hh-h); /* hi-hat  / hi tom   */
+  --grid-y2: calc(var(--grid-hh-h) + var(--grid-note-h)); /* hi tom  / mid tom  */
+  --grid-y3: calc(var(--grid-hh-h) + var(--grid-note-h) * 2); /* mid tom / snare    */
+  --grid-y4: calc(var(--grid-hh-h) + var(--grid-note-h) * 3); /* snare   / floor    */
+  --grid-y5: calc(var(--grid-hh-h) + var(--grid-note-h) * 4); /* floor   / kick     */
+  /* The kick row is taller than its circles; its line sits one note-row down. */
+  --grid-y6: calc(var(--grid-hh-h) + var(--grid-note-h) * 5);
+  --grid-total-h: calc(var(--grid-hh-h) + var(--grid-note-h) * 4 + var(--grid-kick-h));
+}
 .heading1 {
   font-size: 30px;
   font-weight: bold;
@@ -340,43 +375,36 @@ body {
   cursor: pointer;
   text-align: center;
 }
+/* Labels are a parallel column to the note rows, so each label box is given the
+ * exact height of the row it names and centres its text with line-height. That
+ * keeps the two columns locked together instead of drifting apart as margins
+ * accumulate -- which is what previously left "Mid Tom" sitting between rows. */
+.hh-label,
+.tom-label,
+.snare-label,
+.kick-label {
+  display: block;
+  white-space: nowrap;
+  margin-left: 8px;
+  cursor: pointer;
+  text-align: center;
+}
 .hh-label {
-  display: block;
-  white-space: nowrap;
-  margin-top: 16px;
-  margin-left: 8px;
-  cursor: pointer;
-  text-align: center;
+  height: var(--grid-hh-h);
+  line-height: var(--grid-hh-h);
 }
-#tom1-label {
-  display: block;
-  white-space: nowrap;
-  margin-top: 5px;
-  margin-left: 8px;
-  cursor: pointer;
-  text-align: center;
-  visibility: hidden;
-}
+.tom-label,
 .snare-label {
-  margin-top: 5px;
-  margin-left: 8px;
-  cursor: pointer;
-  text-align: center;
-}
-#tom4-label {
-  display: block;
-  white-space: nowrap;
-  margin-top: 5px;
-  margin-left: 8px;
-  cursor: pointer;
-  text-align: center;
-  visibility: hidden;
+  height: var(--grid-note-h);
+  line-height: var(--grid-note-h);
 }
 .kick-label {
-  margin-top: 5px;
-  margin-left: 8px;
-  cursor: pointer;
-  text-align: center;
+  height: var(--grid-kick-h);
+  line-height: var(--grid-kick-h);
+}
+/* Tom labels follow their rows: hidden until the TOMS toggle shows them. */
+.tom-label {
+  visibility: hidden;
 }
 .stickings-label:hover {
   color: var(--highlight-color);
@@ -410,86 +438,65 @@ body {
 }
 .background-highlight-container {
   position: absolute;
-  height: 190px;
+  /* 2px shy of the full stack, matching the original inset. */
+  height: calc(var(--grid-total-h) - 2px);
   white-space: nowrap;
   border: 1px solid transparent;
+}
+.hi-hat-container,
+.toms-container,
+.snare-container,
+.kick-container {
+  white-space: nowrap;
+  border: 1px solid transparent;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  box-sizing: border-box;
 }
 .hi-hat-container {
-  height: 42px;
-  white-space: nowrap;
-  border: 1px solid transparent;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
+  height: var(--grid-hh-h);
 }
-#tom1-container {
-  height: 28px;
-  white-space: nowrap;
-  border: 1px solid transparent;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
+/* All three tom rows (hi/mid/floor) share one rule, so a row can never be
+ * added again without picking up the correct height and hidden default. */
+.toms-container {
+  height: var(--grid-note-h);
   visibility: hidden;
 }
 .snare-container {
-  border: 1px solid transparent;
-  height: 28px;
-  white-space: nowrap;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-}
-#tom4-container {
-  height: 28px;
-  white-space: nowrap;
-  border: 1px solid transparent;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  visibility: hidden;
+  height: var(--grid-note-h);
 }
 .kick-container {
-  border: 1px solid transparent;
-  height: 56px;
-  white-space: nowrap;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
+  height: var(--grid-kick-h);
+}
+.staff-line-1,
+.staff-line-2,
+.staff-line-3,
+.staff-line-4,
+.staff-line-5,
+.staff-line-6 {
+  position: absolute;
+  width: 100%;
+  height: 0px;
+  border-top: 3px solid #cacaca;
 }
 .staff-line-1 {
-  position: absolute;
-  top: 42px;
-  width: 100%;
-  height: 0px;
-  border-top: 3px solid #cacaca;
+  top: calc(var(--grid-y1) - var(--grid-line-inset));
 }
 .staff-line-2 {
-  position: absolute;
-  top: 72px;
-  width: 100%;
-  height: 0px;
-  border-top: 3px solid #cacaca;
+  top: calc(var(--grid-y2) - var(--grid-line-inset));
 }
 .staff-line-3 {
-  position: absolute;
-  top: 103px;
-  width: 100%;
-  height: 0px;
-  border-top: 3px solid #cacaca;
+  top: calc(var(--grid-y3) - var(--grid-line-inset));
 }
 .staff-line-4 {
-  position: absolute;
-  top: 132px;
-  width: 100%;
-  height: 0px;
-  border-top: 3px solid #cacaca;
+  top: calc(var(--grid-y4) - var(--grid-line-inset));
 }
 .staff-line-5 {
-  position: absolute;
-  top: 163px;
-  width: 100%;
-  height: 0px;
-  border-top: 3px solid #cacaca;
+  top: calc(var(--grid-y5) - var(--grid-line-inset));
+}
+.staff-line-6 {
+  top: calc(var(--grid-y6) - var(--grid-line-inset));
 }
 .sticking {
   display: inline-block;

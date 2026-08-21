@@ -153,3 +153,219 @@ test.describe('mid tom (T2)', () => {
     expect((await gridToms(page))[1]).not.toContain('d');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Grid layout.
+//
+// The note grid is a fixed-height stack: each voice row has a hardcoded height
+// and the grey guide lines are absolutely positioned at offsets that must equal
+// the cumulative row heights. Adding the mid tom row broke that (it had no CSS
+// rule at all, so it collapsed to content height and its circles landed on top
+// of the snare's). The offsets are now derived from the row heights in CSS.
+//
+// These assert the geometry rather than pixels: uniform row heights, rows that
+// tile with no gap or overlap, and evenly spaced guide lines. That holds across
+// platforms, unlike a screenshot, and pins the invariant that actually matters.
+// ---------------------------------------------------------------------------
+
+// Measures every rendered measure and returns any violations found.
+const layoutReport = (page) =>
+  page.evaluate(() => {
+    const problems = [];
+    const perMeasure = [];
+    document.querySelectorAll('.notes-row-container').forEach((rc, mi) => {
+      const hh = rc.querySelector('.hi-hat-container');
+      if (!hh) return;
+      const nc = hh.parentElement;
+      const base = nc.getBoundingClientRect().top;
+      const R = (s) => {
+        const e = nc.querySelector(s);
+        if (!e) return null;
+        const r = e.getBoundingClientRect();
+        return {
+          top: +(r.top - base).toFixed(1),
+          h: +r.height.toFixed(1),
+          bot: +(r.bottom - base).toFixed(1),
+        };
+      };
+      const rows = [
+        ['hihat', '.hi-hat-container'],
+        ['hiTom', '#tom1-container'],
+        ['midTom', '#tom2-container'],
+        ['snare', '.snare-container'],
+        ['floorTom', '#tom4-container'],
+        ['kick', '.kick-container'],
+      ].map(([k, s]) => ({ k, ...(R(s) || {}) }));
+      if (rows.some((r) => r.h === undefined)) {
+        problems.push(`measure ${mi}: a voice row is missing`);
+        return;
+      }
+      const noteRowHeights = [rows[1].h, rows[2].h, rows[3].h, rows[4].h];
+      if (new Set(noteRowHeights).size !== 1)
+        problems.push(`measure ${mi}: tom/snare rows differ in height: ${noteRowHeights}`);
+      for (let i = 1; i < rows.length; i++) {
+        const delta = rows[i].top - rows[i - 1].bot;
+        if (Math.abs(delta) > 0.6)
+          problems.push(
+            `measure ${mi}: ${rows[i - 1].k} -> ${rows[i].k} gap/overlap of ${delta.toFixed(1)}px`
+          );
+      }
+      const lines = [];
+      for (let i = 1; i <= 6; i++) {
+        const l = R('.staff-line-' + i);
+        if (l) lines.push(l.top);
+      }
+      const gaps = lines.slice(1).map((v, i) => +(v - lines[i]).toFixed(1));
+      if (lines.length !== 6)
+        problems.push(`measure ${mi}: ${lines.length} guide lines, expected 6`);
+      else if (new Set(gaps).size !== 1)
+        problems.push(`measure ${mi}: guide lines unevenly spaced: ${gaps}`);
+      perMeasure.push({ rowHeights: rows.map((r) => r.h), gaps });
+    });
+    if (!perMeasure.length) problems.push('no measures rendered');
+    return { problems, perMeasure };
+  });
+
+test.describe('note grid layout with six voice rows', () => {
+  test('rows tile evenly and guide lines are uniform', async ({ page }) => {
+    await loadGroove(page, THREE_TOMS);
+    const { problems, perMeasure } = await layoutReport(page);
+    expect(problems).toEqual([]);
+    // hi-hat 44, four note rows at 30, kick 58 -- the tom row must match its peers
+    expect(perMeasure[0].rowHeights).toEqual([44, 30, 30, 30, 30, 58]);
+    expect(perMeasure[0].gaps).toEqual([30, 30, 30, 30, 30]);
+  });
+
+  test('layout holds in every division', async ({ page }) => {
+    await loadGroove(page, THREE_TOMS);
+    // The mixed-division path calls window.alert, which blocks the renderer.
+    await page.evaluate(() => {
+      window.alert = () => {};
+    });
+    for (const [division, name] of [
+      [4, '4ths'],
+      [8, '8ths'],
+      [16, '16ths'],
+      [32, '32nds'],
+      [12, '8th triplets'],
+      [24, '16th triplets'],
+      [48, 'mixed'],
+    ]) {
+      await page.evaluate((d) => window.myGrooveWriter.changeDivision(d), division);
+      const { problems, perMeasure } = await layoutReport(page);
+      expect(problems, `division ${name}`).toEqual([]);
+      expect(perMeasure[0].rowHeights, `division ${name}`).toEqual([44, 30, 30, 30, 30, 58]);
+    }
+  });
+
+  test('every measure lays out identically when measures are added', async ({ page }) => {
+    await loadGroove(page, THREE_TOMS);
+    await page.evaluate(() => {
+      window.myGrooveWriter.addMeasureButtonClick();
+      window.myGrooveWriter.addMeasureButtonClick();
+    });
+    const { problems, perMeasure } = await layoutReport(page);
+    expect(problems).toEqual([]);
+    expect(perMeasure).toHaveLength(3);
+    const shapes = new Set(perMeasure.map((m) => JSON.stringify(m)));
+    expect(shapes.size, 'all measures should share one layout').toBe(1);
+  });
+
+  test('toggling TOMS hides and restores the mid tom row with the others', async ({ page }) => {
+    await loadGroove(page, THREE_TOMS);
+    const vis = () =>
+      page.evaluate(() => ({
+        hiTom: getComputedStyle(document.querySelector('#tom1-container')).visibility,
+        midTom: getComputedStyle(document.querySelector('#tom2-container')).visibility,
+        floorTom: getComputedStyle(document.querySelector('#tom4-container')).visibility,
+        midLabel: getComputedStyle(document.querySelector('#tom2-label')).visibility,
+      }));
+
+    await page.evaluate(() => window.myGrooveWriter.showHideToms(true, false, true));
+    // the mid tom must hide along with its peers, not linger behind
+    expect(await vis()).toEqual({
+      hiTom: 'hidden',
+      midTom: 'hidden',
+      floorTom: 'hidden',
+      midLabel: 'hidden',
+    });
+    expect((await layoutReport(page)).problems).toEqual([]);
+
+    await page.evaluate(() => window.myGrooveWriter.showHideToms(true, true, true));
+    expect(await vis()).toEqual({
+      hiTom: 'visible',
+      midTom: 'visible',
+      floorTom: 'visible',
+      midLabel: 'visible',
+    });
+    expect((await layoutReport(page)).problems).toEqual([]);
+  });
+
+  test('layout holds in an odd time signature and a narrow viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 700, height: 800 });
+    await loadGroove(
+      page,
+      `${BASE}?TimeSig=7/8&Div=16&Tempo=90&Measures=2&H=|xxxxxxxxxxxxxx|xxxxxxxxxxxxxx|&S=|----O-----O---|----O-----O---|&K=|o------o------|o------o------|&T1=|o-------------|--------------|&T2=|--o-----------|--------------|&T4=|----o---------|--------------|`
+    );
+    const { problems, perMeasure } = await layoutReport(page);
+    expect(problems).toEqual([]);
+    expect(perMeasure).toHaveLength(2);
+    // the grid keeps its own horizontal scroll rather than distorting the rows
+    expect(
+      await page.evaluate(() => {
+        const mi = document.getElementById('musicalInput');
+        return getComputedStyle(mi).overflowX;
+      })
+    ).toBe('auto');
+  });
+
+  test('each row is the topmost hit target at its own centre', async ({ page }) => {
+    await loadGroove(page, THREE_TOMS);
+    const hits = await page.evaluate(() => {
+      document.querySelector('#tom2-2').scrollIntoView({ block: 'center' });
+      return [
+        ['hihat', '#hi-hat2', 'hi-hat'],
+        ['hiTom', '#tom1-2', 'tom1-'],
+        ['midTom', '#tom2-2', 'tom2-'],
+        ['snare', '#snare2', 'snare'],
+        ['floorTom', '#tom4-2', 'tom4-'],
+        ['kick', '#kick2', 'kick'],
+      ].map(([row, sel, prefix]) => {
+        const r = document.querySelector(sel).getBoundingClientRect();
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        const cell = hit && hit.closest('.tom, .snare, .kick, .hi-hat');
+        return {
+          row,
+          topmost: cell ? cell.id : null,
+          correct: !!cell && cell.id.startsWith(prefix),
+        };
+      });
+    });
+    expect(hits.filter((h) => !h.correct)).toEqual([]);
+  });
+
+  test('clicking the mid tom toggles only the mid tom', async ({ page }) => {
+    await loadGroove(page, THREE_TOMS);
+    await page.evaluate(() => window.myGrooveWriter.clearAllNotes());
+    const counts = () =>
+      page.evaluate(() => {
+        const d = window.myGrooveWriter.grooveDataFromClickableUI();
+        return {
+          hiTom: d.toms_array[0].filter(Boolean).length,
+          midTom: d.toms_array[1].filter(Boolean).length,
+          floorTom: d.toms_array[3].filter(Boolean).length,
+          snare: d.snare_array.filter(Boolean).length,
+          hh: d.hh_array.filter(Boolean).length,
+          kick: d.kick_array.filter(Boolean).length,
+        };
+      });
+
+    const before = await counts();
+    await page.click('#tom2-5');
+    const after = await counts();
+    expect(after).toEqual({ ...before, midTom: before.midTom + 1 });
+
+    await page.click('#snare7');
+    expect(await counts()).toEqual({ ...after, snare: after.snare + 1 });
+  });
+});

@@ -73,4 +73,17 @@ test.describe('visual layout (screenshot backstop)', () => {
     );
     await expect(page).toHaveScreenshot('rock16.png', opts);
   });
+
+  test('the full six-row grid with toms visible', async ({ page }) => {
+    // Pins the grid layout with every voice row on screen -- hi-hat, hi tom,
+    // mid tom, snare, floor tom, kick. The two shots above both have toms
+    // hidden, so neither would catch a tom row collapsing or overlapping.
+    await loadGroove(
+      page,
+      grooveUrl(
+        '?TimeSig=4/4&Div=16&Tempo=80&Measures=1&H=|xxxxxxxxxxxxxxxx|&S=|----O-------O---|&K=|o-------o-------|&T1=|o---------------|&T2=|--o-------------|&T4=|----o-----------|'
+      )
+    );
+    await expect(page).toHaveScreenshot('grid-all-toms.png', opts);
+  });
 });
