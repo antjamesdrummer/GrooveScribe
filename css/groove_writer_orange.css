@@ -352,6 +352,9 @@ body {
   /* The kick row is taller than its circles; its line sits one note-row down. */
   --grid-y6: calc(var(--grid-hh-h) + var(--grid-note-h) * 5);
   --grid-total-h: calc(var(--grid-hh-h) + var(--grid-note-h) * 4 + var(--grid-kick-h));
+  /* With the toms collapsed only hi-hat, snare and kick remain. Their guide
+   * lines land on --grid-y1/y2/y3, so lines 4-6 simply switch off. */
+  --grid-collapsed-h: calc(var(--grid-hh-h) + var(--grid-note-h) + var(--grid-kick-h));
 }
 .heading1 {
   font-size: 30px;
@@ -402,9 +405,9 @@ body {
   height: var(--grid-kick-h);
   line-height: var(--grid-kick-h);
 }
-/* Tom labels follow their rows: hidden until the TOMS toggle shows them. */
+/* Tom labels follow their rows: collapsed until the TOMS toggle shows them. */
 .tom-label {
-  visibility: hidden;
+  display: none;
 }
 .stickings-label:hover {
   color: var(--highlight-color);
@@ -438,10 +441,14 @@ body {
 }
 .background-highlight-container {
   position: absolute;
-  /* 2px shy of the full stack, matching the original inset. */
-  height: calc(var(--grid-total-h) - 2px);
+  /* 2px shy of the stack, matching the original inset. Sized for the collapsed
+   * grid by default and grown when the toms are shown. */
+  height: calc(var(--grid-collapsed-h) - 2px);
   white-space: nowrap;
   border: 1px solid transparent;
+}
+#musicalInput.tomsVisible .background-highlight-container {
+  height: calc(var(--grid-total-h) - 2px);
 }
 .hi-hat-container,
 .toms-container,
@@ -458,10 +465,10 @@ body {
   height: var(--grid-hh-h);
 }
 /* All three tom rows (hi/mid/floor) share one rule, so a row can never be
- * added again without picking up the correct height and hidden default. */
+ * added again without picking up the correct height and collapsed default. */
 .toms-container {
   height: var(--grid-note-h);
-  visibility: hidden;
+  display: none;
 }
 .snare-container {
   height: var(--grid-note-h);
@@ -497,6 +504,19 @@ body {
 }
 .staff-line-6 {
   top: calc(var(--grid-y6) - var(--grid-line-inset));
+}
+/* Lines 4-6 sit under the three tom rows, so they collapse with them. Lines
+ * 1-3 keep their offsets in both states: with the toms gone the remaining
+ * rows are hi-hat, snare and kick, whose lines land on exactly y1/y2/y3. */
+.staff-line-4,
+.staff-line-5,
+.staff-line-6 {
+  display: none;
+}
+#musicalInput.tomsVisible .staff-line-4,
+#musicalInput.tomsVisible .staff-line-5,
+#musicalInput.tomsVisible .staff-line-6 {
+  display: block;
 }
 .sticking {
   display: inline-block;

@@ -168,7 +168,9 @@ test.describe('mid tom (T2)', () => {
 // platforms, unlike a screenshot, and pins the invariant that actually matters.
 // ---------------------------------------------------------------------------
 
-// Measures every rendered measure and returns any violations found.
+// Measures every rendered measure and returns any violations found. Only rows
+// and guide lines that are actually laid out are considered, so this works
+// unchanged whether the toms are collapsed or shown.
 const layoutReport = (page) =>
   page.evaluate(() => {
     const problems = [];
@@ -178,9 +180,10 @@ const layoutReport = (page) =>
       if (!hh) return;
       const nc = hh.parentElement;
       const base = nc.getBoundingClientRect().top;
+      const laidOut = (e) => e && getComputedStyle(e).display !== 'none';
       const R = (s) => {
         const e = nc.querySelector(s);
-        if (!e) return null;
+        if (!laidOut(e)) return null;
         const r = e.getBoundingClientRect();
         return {
           top: +(r.top - base).toFixed(1),
@@ -195,16 +198,21 @@ const layoutReport = (page) =>
         ['snare', '.snare-container'],
         ['floorTom', '#tom4-container'],
         ['kick', '.kick-container'],
-      ].map(([k, s]) => ({ k, ...(R(s) || {}) }));
-      if (rows.some((r) => r.h === undefined)) {
-        problems.push(`measure ${mi}: a voice row is missing`);
+      ]
+        .map(([k, s]) => ({ k, r: R(s) }))
+        .filter((x) => x.r);
+      if (!rows.length) {
+        problems.push(`measure ${mi}: no voice rows laid out`);
         return;
       }
-      const noteRowHeights = [rows[1].h, rows[2].h, rows[3].h, rows[4].h];
+      // every row that is not the hi-hat or the kick must share one height
+      const noteRowHeights = rows
+        .filter((x) => x.k !== 'hihat' && x.k !== 'kick')
+        .map((x) => x.r.h);
       if (new Set(noteRowHeights).size !== 1)
         problems.push(`measure ${mi}: tom/snare rows differ in height: ${noteRowHeights}`);
       for (let i = 1; i < rows.length; i++) {
-        const delta = rows[i].top - rows[i - 1].bot;
+        const delta = rows[i].r.top - rows[i - 1].r.bot;
         if (Math.abs(delta) > 0.6)
           problems.push(
             `measure ${mi}: ${rows[i - 1].k} -> ${rows[i].k} gap/overlap of ${delta.toFixed(1)}px`
@@ -216,11 +224,12 @@ const layoutReport = (page) =>
         if (l) lines.push(l.top);
       }
       const gaps = lines.slice(1).map((v, i) => +(v - lines[i]).toFixed(1));
-      if (lines.length !== 6)
-        problems.push(`measure ${mi}: ${lines.length} guide lines, expected 6`);
-      else if (new Set(gaps).size !== 1)
+      // one guide line per row, evenly pitched
+      if (lines.length !== rows.length)
+        problems.push(`measure ${mi}: ${lines.length} guide lines for ${rows.length} rows`);
+      if (new Set(gaps).size !== 1)
         problems.push(`measure ${mi}: guide lines unevenly spaced: ${gaps}`);
-      perMeasure.push({ rowHeights: rows.map((r) => r.h), gaps });
+      perMeasure.push({ rows: rows.map((x) => x.k), rowHeights: rows.map((x) => x.r.h), gaps });
     });
     if (!perMeasure.length) problems.push('no measures rendered');
     return { problems, perMeasure };
@@ -271,34 +280,79 @@ test.describe('note grid layout with six voice rows', () => {
     expect(shapes.size, 'all measures should share one layout').toBe(1);
   });
 
-  test('toggling TOMS hides and restores the mid tom row with the others', async ({ page }) => {
+  test('toggling TOMS collapses the tom rows and restores the compact grid', async ({ page }) => {
     await loadGroove(page, THREE_TOMS);
-    const vis = () =>
+    const disp = () =>
       page.evaluate(() => ({
-        hiTom: getComputedStyle(document.querySelector('#tom1-container')).visibility,
-        midTom: getComputedStyle(document.querySelector('#tom2-container')).visibility,
-        floorTom: getComputedStyle(document.querySelector('#tom4-container')).visibility,
-        midLabel: getComputedStyle(document.querySelector('#tom2-label')).visibility,
+        hiTom: getComputedStyle(document.querySelector('#tom1-container')).display,
+        midTom: getComputedStyle(document.querySelector('#tom2-container')).display,
+        floorTom: getComputedStyle(document.querySelector('#tom4-container')).display,
+        midLabel: getComputedStyle(document.querySelector('#tom2-label')).display,
       }));
+    const gridHeight = () =>
+      page.evaluate(
+        () =>
+          +document
+            .querySelector('.hi-hat-container')
+            .parentElement.getBoundingClientRect()
+            .height.toFixed(0)
+      );
+
+    const shownHeight = await gridHeight();
 
     await page.evaluate(() => window.myGrooveWriter.showHideToms(true, false, true));
-    // the mid tom must hide along with its peers, not linger behind
-    expect(await vis()).toEqual({
-      hiTom: 'hidden',
-      midTom: 'hidden',
-      floorTom: 'hidden',
-      midLabel: 'hidden',
+    // the mid tom must collapse along with its peers, not linger behind
+    expect(await disp()).toEqual({
+      hiTom: 'none',
+      midTom: 'none',
+      floorTom: 'none',
+      midLabel: 'none',
     });
-    expect((await layoutReport(page)).problems).toEqual([]);
+    // hiding the toms must genuinely reclaim their space, not just blank it:
+    // three rows of 30px collapse away.
+    const hiddenHeight = await gridHeight();
+    expect(shownHeight - hiddenHeight).toBe(90);
+    const collapsed = await layoutReport(page);
+    expect(collapsed.problems).toEqual([]);
+    expect(collapsed.perMeasure[0].rows).toEqual(['hihat', 'snare', 'kick']);
+    expect(collapsed.perMeasure[0].rowHeights).toEqual([44, 30, 58]);
 
     await page.evaluate(() => window.myGrooveWriter.showHideToms(true, true, true));
-    expect(await vis()).toEqual({
-      hiTom: 'visible',
-      midTom: 'visible',
-      floorTom: 'visible',
-      midLabel: 'visible',
+    expect(await disp()).toEqual({
+      hiTom: 'block',
+      midTom: 'block',
+      floorTom: 'block',
+      midLabel: 'block',
     });
-    expect((await layoutReport(page)).problems).toEqual([]);
+    expect(await gridHeight()).toBe(shownHeight);
+    const restored = await layoutReport(page);
+    expect(restored.problems).toEqual([]);
+    expect(restored.perMeasure[0].rowHeights).toEqual([44, 30, 30, 30, 30, 58]);
+  });
+
+  test('toms still read back from the grid once shown', async ({ page }) => {
+    // isTomsVisible() gates whether the tom rows are read at all, and it keys
+    // off the same inline style the toggle writes. If those ever disagree the
+    // rows render but their notes silently vanish from the groove.
+    await loadGroove(page, THREE_TOMS);
+    const state = await page.evaluate(() => {
+      const gw = window.myGrooveWriter;
+      const gd = gw.grooveDataFromClickableUI();
+      return {
+        showToms: gd.showToms,
+        hiTom: gd.toms_array[0].filter(Boolean).length,
+        midTom: gd.toms_array[1].filter(Boolean).length,
+        floorTom: gd.toms_array[3].filter(Boolean).length,
+        sharedUrlHasT2: gw.myGrooveUtils.getUrlStringFromGrooveData(gd).includes('T2='),
+      };
+    });
+    expect(state).toEqual({
+      showToms: true,
+      hiTom: 1,
+      midTom: 1,
+      floorTom: 1,
+      sharedUrlHasT2: true,
+    });
   });
 
   test('layout holds in an odd time signature and a narrow viewport', async ({ page }) => {

@@ -2701,15 +2701,26 @@ function GrooveWriter() {
   function isTomsVisible() {
     var myElements = document.querySelectorAll('.toms-container');
     for (var i = 0; i < myElements.length; i++) {
-      if (myElements[i].style.visibility == 'visible') return true;
+      if (myElements[i].style.display == 'block') return true;
     }
 
     return false;
   }
 
   root.showHideToms = function (force, showElseHide, dontRefreshScreen) {
-    var OnElseOff = showHideCSS_ClassVisibility('.toms-container', force, showElseHide);
-    showHideCSS_ClassVisibility('.tom-label', force, showElseHide);
+    // Toms collapse out of the layout rather than merely turning invisible, so
+    // hiding them restores the compact grid instead of leaving empty bands
+    // where the tom rows were. (The kick and snare rows still use `visibility`
+    // in permutation mode, where reserving the space is what's wanted.)
+    var OnElseOff = showHideCSS_ClassDisplay('.toms-container', force, showElseHide, 'block');
+    showHideCSS_ClassDisplay('.tom-label', force, showElseHide, 'block');
+
+    // The guide lines below the snare belong to the collapsed rows, and the
+    // highlight backdrop has to shrink with them. Both are driven off one class
+    // on the grid wrapper, since the lines are positioned siblings of the rows
+    // rather than children, and so cannot follow them automatically.
+    var gridWrapper = document.getElementById('musicalInput');
+    if (gridWrapper) addOrRemoveKeywordFromClass(gridWrapper, 'tomsVisible', OnElseOff);
     if (OnElseOff) addOrRemoveKeywordFromClassById('showHideTomsButton', 'ClickToHide', true);
     else addOrRemoveKeywordFromClassById('showHideTomsButton', 'ClickToHide', false);
 
