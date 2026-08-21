@@ -53,6 +53,7 @@ import {
   constant_ABC_STICK_OFF,
   constant_ABC_STICK_R,
   constant_ABC_T1_Normal,
+  constant_ABC_T2_Normal,
   constant_ABC_T4_Normal,
   constant_OUR_MIDI_HIHAT_ACCENT,
   constant_OUR_MIDI_HIHAT_COW_BELL,
@@ -74,6 +75,7 @@ import {
   constant_OUR_MIDI_SNARE_NORMAL,
   constant_OUR_MIDI_SNARE_XSTICK,
   constant_OUR_MIDI_TOM1_NORMAL,
+  constant_OUR_MIDI_TOM2_NORMAL,
   constant_OUR_MIDI_TOM4_NORMAL,
   constant_OUR_MIDI_VELOCITY_NORMAL,
   constant_sticking_right_on_color_rgb,
@@ -271,6 +273,9 @@ function GrooveWriter() {
             case 1:
               play_single_note_for_note_setting(constant_OUR_MIDI_TOM1_NORMAL);
               break;
+            case 2:
+              play_single_note_for_note_setting(constant_OUR_MIDI_TOM2_NORMAL);
+              break;
             case 4:
               play_single_note_for_note_setting(constant_OUR_MIDI_TOM4_NORMAL);
               break;
@@ -288,6 +293,10 @@ function GrooveWriter() {
   // silly helpers, but needed for argument compatibility with the other set states
   function set_tom1_state(id, mode, make_sound) {
     set_tom_state(id, 1, mode, make_sound);
+  }
+
+  function set_tom2_state(id, mode, make_sound) {
+    set_tom_state(id, 2, mode, make_sound);
   }
 
   function set_tom4_state(id, mode, make_sound) {
@@ -560,6 +569,7 @@ function GrooveWriter() {
   // this means that only notes falling on the current beat will be highlighted.
   var class_cur_hh_highlight_id = false;
   var class_cur_tom1_highlight_id = false;
+  var class_cur_tom2_highlight_id = false;
   var class_cur_tom4_highlight_id = false;
   var class_cur_snare_highlight_id = false;
   var class_cur_kick_highlight_id = false;
@@ -628,6 +638,11 @@ function GrooveWriter() {
       document.getElementById('tom1-' + class_cur_tom1_highlight_id).style.borderColor =
         'transparent';
       class_cur_tom1_highlight_id = false;
+    }
+    if (class_cur_tom2_highlight_id !== false) {
+      document.getElementById('tom2-' + class_cur_tom2_highlight_id).style.borderColor =
+        'transparent';
+      class_cur_tom2_highlight_id = false;
     }
     if (class_cur_tom4_highlight_id !== false) {
       document.getElementById('tom4-' + class_cur_tom4_highlight_id).style.borderColor =
@@ -1099,6 +1114,9 @@ function GrooveWriter() {
       case 'tom1':
         contextMenu = document.getElementById('tom1LabelContextMenu');
         break;
+      case 'tom2':
+        contextMenu = document.getElementById('tom2LabelContextMenu');
+        break;
       case 'tom4':
         contextMenu = document.getElementById('tom4LabelContextMenu');
         break;
@@ -1137,6 +1155,9 @@ function GrooveWriter() {
         break;
       case 'tom1':
         setFunction = set_tom1_state;
+        break;
+      case 'tom2':
+        setFunction = set_tom2_state;
         break;
       case 'tom4':
         setFunction = set_tom4_state;
@@ -1259,6 +1280,9 @@ function GrooveWriter() {
       case 'tom1':
         contextMenu = document.getElementById('tom1ContextMenu');
         break;
+      case 'tom2':
+        contextMenu = document.getElementById('tom2ContextMenu');
+        break;
       case 'tom4':
         contextMenu = document.getElementById('tom4ContextMenu');
         break;
@@ -1303,6 +1327,9 @@ function GrooveWriter() {
         case 'tom1':
           set_tom_state(id, 1, is_tom_on(id, 1) ? 'off' : 'normal', true);
           break;
+        case 'tom2':
+          set_tom_state(id, 2, is_tom_on(id, 2) ? 'off' : 'normal', true);
+          break;
         case 'tom4':
           set_tom_state(id, 4, is_tom_on(id, 4) ? 'off' : 'normal', true);
           break;
@@ -1333,6 +1360,9 @@ function GrooveWriter() {
         break;
       case 'tom1':
         set_tom1_state(id, new_setting, true);
+        break;
+      case 'tom2':
+        set_tom2_state(id, new_setting, true);
         break;
       case 'tom4':
         set_tom4_state(id, new_setting, true);
@@ -1372,6 +1402,9 @@ function GrooveWriter() {
           break;
         case 'tom1':
           set_tom_state(id, 1, action == 'off' ? 'off' : 'normal', true);
+          break;
+        case 'tom2':
+          set_tom_state(id, 2, action == 'off' ? 'off' : 'normal', true);
           break;
         case 'tom4':
           set_tom_state(id, 4, action == 'off' ? 'off' : 'normal', true);
@@ -1888,9 +1921,11 @@ function GrooveWriter() {
 
         if (isTomsVisible()) {
           myGrooveData.toms_array[0].push(get_tom_state(i, 1, 'ABC'));
+          myGrooveData.toms_array[1].push(get_tom_state(i, 2, 'ABC'));
           myGrooveData.toms_array[3].push(get_tom_state(i, 4, 'ABC'));
         } else {
           myGrooveData.toms_array[0].push(false);
+          myGrooveData.toms_array[1].push(false);
           myGrooveData.toms_array[3].push(false);
         }
       }
@@ -1964,6 +1999,13 @@ function GrooveWriter() {
     );
     myGrooveData.toms_array[0] = root.myGrooveUtils.scaleNoteArrayToFullSize(
       myGrooveData.toms_array[0],
+      myGrooveData.numberOfMeasures,
+      myGrooveData.notesPerMeasure,
+      myGrooveData.numBeats,
+      myGrooveData.noteValue
+    );
+    myGrooveData.toms_array[1] = root.myGrooveUtils.scaleNoteArrayToFullSize(
+      myGrooveData.toms_array[1],
       myGrooveData.numberOfMeasures,
       myGrooveData.notesPerMeasure,
       myGrooveData.numBeats,
@@ -2496,6 +2538,7 @@ function GrooveWriter() {
     var uiStickings = '';
     var uiHH = '';
     var uiTom1 = '';
+    var uiTom2 = '';
     var uiTom4 = '';
     var uiSnare = '';
     var uiKick = '';
@@ -2512,6 +2555,7 @@ function GrooveWriter() {
         uiStickings += get_sticking_state(i, 'URL');
         uiHH += get_hh_state(i, 'URL');
         uiTom1 += get_tom_state(i, 1, 'URL');
+        uiTom2 += get_tom_state(i, 2, 'URL');
         uiTom4 += get_tom_state(i, 4, 'URL');
         uiSnare += get_snare_state(i, 'URL');
         uiKick += get_kick_state(i, 'URL');
@@ -2529,7 +2573,8 @@ function GrooveWriter() {
       uiTom1,
       uiTom4,
       uiSnare,
-      uiKick
+      uiKick,
+      uiTom2
     );
 
     updateSheetMusic();
@@ -2542,6 +2587,7 @@ function GrooveWriter() {
     var uiStickings = '';
     var uiHH = '';
     var uiTom1 = '';
+    var uiTom2 = '';
     var uiTom4 = '';
     var uiSnare = '';
     var uiKick = '';
@@ -2553,6 +2599,7 @@ function GrooveWriter() {
       uiStickings += get_sticking_state(i, 'URL');
       uiHH += get_hh_state(i, 'URL');
       uiTom1 += get_tom_state(i, 1, 'URL');
+      uiTom2 += get_tom_state(i, 2, 'URL');
       uiTom4 += get_tom_state(i, 4, 'URL');
       uiSnare += get_snare_state(i, 'URL');
       uiKick += get_kick_state(i, 'URL');
@@ -2563,6 +2610,7 @@ function GrooveWriter() {
       uiStickings += get_sticking_state(i, 'URL');
       uiHH += get_hh_state(i, 'URL');
       uiTom1 += get_tom_state(i, 1, 'URL');
+      uiTom2 += get_tom_state(i, 2, 'URL');
       uiTom4 += get_tom_state(i, 4, 'URL');
       uiSnare += get_snare_state(i, 'URL');
       uiKick += get_kick_state(i, 'URL');
@@ -2579,7 +2627,8 @@ function GrooveWriter() {
       uiTom1,
       uiTom4,
       uiSnare,
-      uiKick
+      uiKick,
+      uiTom2
     );
 
     // reference the button and scroll it into view
@@ -2641,6 +2690,7 @@ function GrooveWriter() {
       set_sticking_state(i, 'off');
       set_hh_state(i, 'off');
       set_tom1_state(i, 'off');
+      set_tom2_state(i, 'off');
       set_tom4_state(i, 'off');
       set_snare_state(i, 'off');
       set_kick_state(i, 'off');
@@ -3032,6 +3082,8 @@ function GrooveWriter() {
       setFunction = set_hh_state;
     } else if (drumType == 'T1') {
       setFunction = set_tom1_state;
+    } else if (drumType == 'T2') {
+      setFunction = set_tom2_state;
     } else if (drumType == 'T4') {
       setFunction = set_tom4_state;
     } else if (drumType == 'S') {
@@ -3172,6 +3224,8 @@ function GrooveWriter() {
       setFunction = set_hh_state;
     } else if (drumType == 'T1') {
       setFunction = set_tom1_state;
+    } else if (drumType == 'T2') {
+      setFunction = set_tom2_state;
     } else if (drumType == 'T4') {
       setFunction = set_tom4_state;
     } else if (drumType == 'S') {
@@ -3238,6 +3292,9 @@ function GrooveWriter() {
           setFunction(displayIndex, 'normal', false);
           break;
         case constant_ABC_T1_Normal:
+          setFunction(displayIndex, 'normal', false);
+          break;
+        case constant_ABC_T2_Normal:
           setFunction(displayIndex, 'normal', false);
           break;
         case constant_ABC_T4_Normal:
@@ -3535,6 +3592,7 @@ function GrooveWriter() {
     setNotesFromABCArray('Stickings', myGrooveData.sticking_array, class_number_of_measures);
     setNotesFromABCArray('H', myGrooveData.hh_array, class_number_of_measures);
     setNotesFromABCArray('T1', myGrooveData.toms_array[0], class_number_of_measures);
+    setNotesFromABCArray('T2', myGrooveData.toms_array[1], class_number_of_measures);
     setNotesFromABCArray('T4', myGrooveData.toms_array[3], class_number_of_measures);
     setNotesFromABCArray('S', myGrooveData.snare_array, class_number_of_measures);
     setNotesFromABCArray('K', myGrooveData.kick_array, class_number_of_measures);
@@ -3586,7 +3644,7 @@ function GrooveWriter() {
   //
   // OMG this needs to be refactored really bad.   There is a GrooveData struct from groove utils that
   //      would make this whole thing much easier.  :(
-  function changeDivisionWithNotes(newDivision, Stickings, HH, Tom1, Tom4, Snare, Kick) {
+  function changeDivisionWithNotes(newDivision, Stickings, HH, Tom1, Tom4, Snare, Kick, Tom2) {
     var oldDivision = class_time_division;
     var wasStickingsVisable = isStickingsVisible();
     var wasTomsVisable = isTomsVisible();
@@ -3623,6 +3681,9 @@ function GrooveWriter() {
       setNotesFromURLData('H', HH, class_number_of_measures);
       setNotesFromURLData('T1', Tom1, class_number_of_measures);
       setNotesFromURLData('T4', Tom4, class_number_of_measures);
+      // Tom2 is passed last and guarded separately: callers written before the
+      // mid tom existed omit it, and must keep working unchanged.
+      if (Tom2) setNotesFromURLData('T2', Tom2, class_number_of_measures);
       setNotesFromURLData('S', Snare, class_number_of_measures);
       setNotesFromURLData('K', Kick, class_number_of_measures);
     }
@@ -3667,6 +3728,7 @@ function GrooveWriter() {
     var uiStickings = '|';
     var uiHH = '|';
     var uiTom1 = '|';
+    var uiTom2 = '|';
     var uiTom4 = '|';
     var uiSnare = '|';
     var uiKick = '|';
@@ -3717,6 +3779,7 @@ function GrooveWriter() {
         uiStickings += get_sticking_state(i, 'URL');
         uiHH += get_hh_state(i, 'URL');
         uiTom1 += get_tom_state(i, 1, 'URL');
+        uiTom2 += get_tom_state(i, 2, 'URL');
         uiTom4 += get_tom_state(i, 4, 'URL');
         uiSnare += get_snare_state(i, 'URL');
         uiKick += get_kick_state(i, 'URL');
@@ -3772,7 +3835,16 @@ function GrooveWriter() {
 
     root.expandAuthoringViewWhenNecessary(newDivision, class_number_of_measures);
 
-    changeDivisionWithNotes(newDivision, uiStickings, uiHH, uiTom1, uiTom4, uiSnare, uiKick);
+    changeDivisionWithNotes(
+      newDivision,
+      uiStickings,
+      uiHH,
+      uiTom1,
+      uiTom4,
+      uiSnare,
+      uiKick,
+      uiTom2
+    );
 
     updateSheetMusic();
   };

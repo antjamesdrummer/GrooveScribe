@@ -134,6 +134,9 @@ function tablatureToABCNotationPerNote(drumType, tablatureChar) {
         case 'T1':
           return constant_ABC_T1_Normal;
         //break;
+        case 'T2':
+          return constant_ABC_T2_Normal;
+        //break;
         case 'T4':
           return constant_ABC_T4_Normal;
         //break;

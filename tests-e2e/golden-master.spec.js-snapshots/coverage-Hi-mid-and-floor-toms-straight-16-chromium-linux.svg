@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" color="black" width="9.22in" height="0.95in" viewBox="0 0 664 69">
+<title>abc2svg - 6.</title><style type="text/css">
+.fill {fill: currentColor}
+.stroke {stroke: currentColor; fill: none; stroke-width: .7}
+.f1_1 {font:italic 14px serif}
+</style><defs>
+<path id="pclef" class="stroke" style="stroke-width:1.4" d="m-4 10h5.4v-20h-5.4v20"></path>
+<ellipse id="hd" rx="4.1" ry="2.9" transform="rotate(-20)" class="fill"></ellipse>
+</defs><g transform="scale(0.75)"><path class="stroke" d="m885.33 68.34v-24.00"></path>
+<path class="stroke" d="m882.33 68.34v-24.00"></path>
+<path class="stroke" d="m0.00 68.34
+h885.33m-885.33 -6h885.33m-885.33 -6h885.33m-885.33 -6h885.33m-885.33 -6h885.33"></path>
+<use x="12.00" y="56.34" xlink:href="#pclef"></use>
+<g style="font:bold 16px serif" transform="translate(30.50,68.34) scale(1.2,1)">
+	<text y="-12" text-anchor="middle">4</text>
+	<text text-anchor="middle">4</text>
+</g>
+<path class="stroke" d="m52.00 47.34v-21.00"></path>
+<use x="48.50" y="47.34" xlink:href="#hd"></use>
+<rect style="fill: transparent;" class="abcr" id="abcNoteNum_1_0" x="42.00" y="35.34" width="13.00" height="42.00"></rect>
+<path class="stroke" d="m272.22 50.34v-21.00"></path>
+<use x="268.72" y="50.34" xlink:href="#hd"></use>
+<rect style="fill: transparent;" class="abcr" id="abcNoteNum_1_1" x="262.22" y="35.34" width="13.00" height="42.00"></rect>
+<path class="stroke" d="m492.44 53.34v-21.00"></path>
+<use x="488.94" y="53.34" xlink:href="#hd"></use>
+<rect style="fill: transparent;" class="abcr" id="abcNoteNum_1_2" x="482.44" y="35.34" width="13.00" height="42.00"></rect>
+<path class="stroke" d="m712.66 59.34v-21.00"></path>
+<use x="709.16" y="59.34" xlink:href="#hd"></use>
+<rect style="fill: transparent;" class="abcr" id="abcNoteNum_1_3" x="702.66" y="35.34" width="13.00" height="42.00"></rect>
+</g></svg>

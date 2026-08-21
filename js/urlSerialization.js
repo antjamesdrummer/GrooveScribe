@@ -321,6 +321,20 @@ export function getUrlStringFromGrooveData(myGrooveData, url_destination, editor
         myGrooveData.notesPerMeasure
       );
     fullURL += Tom1 + Tom4;
+
+    // The mid tom (T2) is emitted only when it actually carries notes. T1/T4
+    // are always written when toms are shown, but appending an empty T2 would
+    // change the URL of every groove saved before the mid tom existed; those
+    // URLs must stay byte-identical. An absent T2 parses back to an empty row.
+    var Tom2Tab = tabLineFromAbcNoteArray(
+      'T2',
+      myGrooveData.toms_array[1],
+      true,
+      true,
+      total_notes,
+      myGrooveData.notesPerMeasure
+    );
+    if (/[^|\-\s]/.test(Tom2Tab)) fullURL += '&T2=|' + Tom2Tab;
   }
 
   // only add if we need them.  // they are long and ugly. :)

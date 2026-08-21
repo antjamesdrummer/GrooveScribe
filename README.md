@@ -15,6 +15,29 @@ URL format, and playback engine are unchanged.
   practice tool for learning and drilling grooves and exercises. It is an HTML
   application that runs entirely in the browser.
 
+### Changes from upstream
+
+Beyond branding and accent colours, this fork adds one functional change:
+
+**Mid tom.** The note grid has a third tom row, **Mid Tom**, between Hi Tom and
+Snare. (The two original rows were both labelled just "Tom"; they are now
+**Hi Tom** and **Floor Tom**.) The mid tom notates on **D, the fourth line of
+the staff** — one step below the hi tom's top-space E and one above the snare's
+third-space C — and plays General MIDI 47 (Low-Mid Tom), between the hi tom's 48
+and the floor tom's 43.
+
+Upstream already defined four tom voices (`T1`–`T4`) internally, but only ever
+surfaced `T1` and `T4` in the grid, so `T2` parsed from a URL and was then
+discarded. This change surfaces that dormant voice rather than inventing a new
+one, so the URL format, notation pitch and MIDI note are all upstream's own.
+Its soundfont slot (documented upstream as "Mid Tom 1") shipped empty, so the
+sample is derived from the kit's existing rack tom, pitch-shifted to sit between
+the hi and floor toms.
+
+**Backwards compatibility:** the mid tom is written to the URL only when it
+carries notes, so any groove URL saved before this change re-serializes
+byte-identically and renders exactly as it did before.
+
 ### How do I use it
 
 - Upstream project and original hosting:

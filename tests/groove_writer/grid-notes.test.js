@@ -148,16 +148,18 @@ describe('GrooveWriter clickable grid: grooveDataFromClickableUI', () => {
     expect(gd.kick_array.every((v) => v === false)).toBe(true);
   });
 
-  it('toms_array is a 4-slot array but only index 0 (tom1) and 3 (tom4) are ever populated', () => {
-    // Quirk: toms_array is declared as [[],[],[],[]] (one slot per rack/floor
-    // tom) but the writer only ever reads/writes tom1 and tom4 (see
-    // set_tom1_state/set_tom4_state) -- indices 1 and 2 are permanently empty.
+  it('toms_array is a 4-slot array; 0 (hi), 1 (mid) and 3 (floor) are populated, 2 is not', () => {
+    // toms_array is declared as [[],[],[],[]], one slot per tom voice. The grid
+    // has three tom rows -- tom1 (hi), tom2 (mid) and tom4 (floor) -- so index 2
+    // is the one that stays empty: T3 is still defined in the data model and
+    // parses from a URL, but nothing in the UI can set it.
     const gd = gw.grooveDataFromClickableUI();
+    const expectedLen = gw.notesPerMeasure() * gw.numberOfMeasures();
     expect(gd.toms_array).toHaveLength(4);
-    expect(gd.toms_array[1]).toEqual([]);
+    expect(gd.toms_array[0]).toHaveLength(expectedLen);
+    expect(gd.toms_array[1]).toHaveLength(expectedLen);
+    expect(gd.toms_array[3]).toHaveLength(expectedLen);
     expect(gd.toms_array[2]).toEqual([]);
-    expect(gd.toms_array[0]).toHaveLength(gw.notesPerMeasure() * gw.numberOfMeasures());
-    expect(gd.toms_array[3]).toHaveLength(gw.notesPerMeasure() * gw.numberOfMeasures());
   });
 
   it('showStickings/showToms default to false, and sticking_array is only populated when stickings are shown', () => {

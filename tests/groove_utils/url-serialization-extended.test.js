@@ -260,18 +260,29 @@ describe('GrooveUtils URL serialization (extended)', () => {
       }
     });
 
-    // Quirk: only T1 and T4 are ever re-serialized by getUrlStringFromGrooveData,
-    // even if showToms became true because of a T2/T3 param. T2/T3 data is
-    // effectively unrecoverable from a round trip today.
-    it('re-serializes only T1 and T4, never T2/T3, even when showToms is true', () => {
+    // T2 (the mid tom) round-trips. T3 remains dormant: it parses, but nothing
+    // in the UI can set it, so it is still never re-serialized.
+    it('re-serializes T1, T2 and T4, but still never T3', () => {
       const gd = gu.getGrooveDataFromUrlString(
         '?TimeSig=4/4&Div=16&T1=|o---------------|&T2=|o---------------|&T3=|o---------------|&T4=|o---------------|'
       );
       const out = gu.getUrlStringFromGrooveData(gd);
       expect(out).toContain('T1=|o---------------|');
+      expect(out).toContain('T2=|o---------------|');
+      expect(out).toContain('T4=|o---------------|');
+      expect(out).not.toContain('T3=');
+    });
+
+    // Backwards compatibility: an empty mid tom must not add a T2 param, so
+    // every URL saved before the mid tom existed re-serializes byte-identically.
+    it('omits T2 entirely when the mid tom has no notes', () => {
+      const gd = gu.getGrooveDataFromUrlString(
+        '?TimeSig=4/4&Div=16&T1=|o---------------|&T4=|o---------------|'
+      );
+      const out = gu.getUrlStringFromGrooveData(gd);
+      expect(out).toContain('T1=|o---------------|');
       expect(out).toContain('T4=|o---------------|');
       expect(out).not.toContain('T2=');
-      expect(out).not.toContain('T3=');
     });
 
     it('is not written to the URL at all when showToms is false', () => {
@@ -281,12 +292,21 @@ describe('GrooveUtils URL serialization (extended)', () => {
       expect(out).not.toContain('T4=');
     });
 
+    it('accepts "x" as well as "o" for T2', () => {
+      // The share URL writes "o", but the grid's internal URL form (used when
+      // adding a measure or changing division) writes "x", so both must decode
+      // to the mid tom -- otherwise mid-tom notes vanish on those operations.
+      const viaO = gu.getGrooveDataFromUrlString('?TimeSig=4/4&Div=16&T2=|o---------------|');
+      const viaX = gu.getGrooveDataFromUrlString('?TimeSig=4/4&Div=16&T2=|x---------------|');
+      expect(viaX.toms_array[1][0]).toBe(viaO.toms_array[1][0]);
+      expect(viaX.toms_array[1][0]).not.toBe(false);
+    });
+
     it('degrades an unsupported tab character to a rest (false) instead of throwing', () => {
-      // "x" is not a valid T2 tablature character (only "o" is; see
-      // tablatureToABCNotationPerNote), so it silently becomes `false`
-      // (a console.log warning fires, but no exception).
+      // "q" is not a valid tablature character for any voice, so it silently
+      // becomes `false` (a console.log warning fires, but no exception).
       expect(() => {
-        const gd = gu.getGrooveDataFromUrlString('?TimeSig=4/4&Div=16&T2=|x---------------|');
+        const gd = gu.getGrooveDataFromUrlString('?TimeSig=4/4&Div=16&T2=|q---------------|');
         expect(gd.toms_array[1][0]).toBe(false);
       }).not.toThrow();
     });

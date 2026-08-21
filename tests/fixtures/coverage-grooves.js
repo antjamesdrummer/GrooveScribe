@@ -41,6 +41,21 @@ export const coverageGrooves = [
     url: '?TimeSig=4/4&Div=16&Tempo=90&Measures=1&H=|----------------|&S=|----------------|&K=|----------------|&T1=|xo--------------|&T2=|--o-------------|&T3=|----o-----------|&T4=|------ox--------|',
   },
   {
+    // Mid tom (T2) on its own: proves the voice reaches notation and MIDI.
+    name: 'Mid tom only (straight 16)',
+    url: '?TimeSig=4/4&Div=16&Tempo=90&Measures=1&H=|----------------|&S=|----------------|&K=|----------------|&T2=|o---o---o---o---|',
+  },
+  {
+    // All three grid tom rows together, so their relative staff positions
+    // (hi tom E / mid tom D / floor tom A) are pinned against each other.
+    name: 'Hi mid and floor toms (straight 16)',
+    url: '?TimeSig=4/4&Div=16&Tempo=90&Measures=1&H=|----------------|&S=|--------o-------|&K=|----------------|&T1=|o---------------|&T2=|----o-----------|&T4=|------------o---|',
+  },
+  {
+    name: 'Mid tom with a full groove (straight 16)',
+    url: '?TimeSig=4/4&Div=16&Tempo=100&Measures=1&H=|xxxxxxxxxxxxxxxx|&S=|----O-------O---|&K=|o-------o-------|&T1=|--o-------------|&T2=|-----o------o---|&T4=|-------------o--|',
+  },
+  {
     name: 'Everything at once (straight 16)',
     url: '?TimeSig=4/4&Div=16&Tempo=100&Measures=1&Stickings=|RLBrlbc---------|&H=|bBcmnNorRsxX+-o-|&S=|bBdfgOox--------|&K=|oxX--o--x--X--o-|&T1=|x---o-----------|&T4=|--------ox------|',
   },

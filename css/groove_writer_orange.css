@@ -673,6 +673,7 @@ body {
 .unmuteSnareButton,
 .unmuteKickButton,
 .unmuteTom1Button,
+.unmuteTom2Button,
 .unmuteTom4Button {
   display: inline-block;
   display: none;
@@ -690,6 +691,7 @@ body {
 .unmuteSnareButton:hover,
 .unmuteKickButton:hover,
 .unmuteTom1Button:hover,
+.unmuteTom2Button:hover,
 .unmuteTom4Button:hover {
   opacity: 0.6;
 }
