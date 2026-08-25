@@ -2,12 +2,22 @@
 <html>
     <head>
 		<title>Embeded Groove</title>
-		
-		
+
+
     </head>
     <body>
 	<script type="module">
 		import { GrooveDisplay } from "./js/groove_display.js";
-		GrooveDisplay.AddGrooveDisplayToPage(location.search, true, true);
+		import { getQueryVariableFromString } from "./js/urlSerialization.js";
+
+		// Player=off hides the transport and the expander.
+		//
+		// For a host page that has its own play button and drives the highlight
+		// itself (see js/hostPlayhead.js), ours is not a second option, it is a
+		// second answer to "which one starts the exercise" — and the learner has
+		// to work that out before they can practise. Default stays on, so every
+		// other embed is unchanged.
+		var showPlayer = getQueryVariableFromString("Player", "on", location.search) !== "off";
+		GrooveDisplay.AddGrooveDisplayToPage(location.search, showPlayer, true);
 	</script>
-	
+

@@ -28,6 +28,7 @@
 // libraries and CSS are still injected at load time (below) so this file remains
 // a drop-in embed: a page only needs <script type="module" src="groove_display.js">.
 import { GrooveUtils } from './groove_utils.js';
+import { attachHostPlayhead } from './hostPlayhead.js';
 
 // GrooveDisplay class.   The only one in this file.
 // singleton
@@ -313,6 +314,12 @@ if (typeof GrooveDisplay === 'undefined') {
       };
 
       layoutFunction();
+
+      // Only does anything when this page is inside an iframe, and only for a
+      // host that speaks the protocol. See js/hostPlayhead.js — it lets the
+      // embedding page move this viewer's own note highlight from its own
+      // clock, instead of guessing at where the notes are drawn.
+      attachHostPlayhead(myGrooveUtils);
 
       // resize SVG on window resize (not needed now.   We render to 1000 and scale in css)
       //window.addEventListener("resize", layoutFunction);
