@@ -15,15 +15,24 @@ build step). A groove is encoded in the URL, rendered to sheet music as SVG
 
 ### Verify loop (run after every change; all must stay green)
 
-| Command                | Expectation                                                                                                                                                                 |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`             | Vitest unit suite — **697 pass**                                                                                                                                            |
-| `npm run test:e2e`     | Playwright golden-master — **71 pass**. Byte-identical SVG+MIDI snapshots; this is the real proof that a refactor changed nothing functional. Finishes in <5 min by design. |
-| `npm run lint`         | ESLint — **0 errors** (~82 SonarJS _warnings_ are an accepted refactor backlog, not failures)                                                                               |
-| `npm run typecheck`    | `tsc --noEmit` checkJs via JSDoc — ~296 known errors baseline; changes should be typecheck-**neutral**                                                                      |
-| `npm run knip`         | no unused exports/files                                                                                                                                                     |
-| `npm run format:check` | Prettier clean (`npm run format` to fix)                                                                                                                                    |
-| `npm run check`        | lint + typecheck + format:check + test in one shot                                                                                                                          |
+| Command                | Expectation                                                                                                                                                                         |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm test`             | Vitest unit suite — **724 pass**                                                                                                                                                    |
+| `npm run test:e2e`     | Playwright golden-master — **90 pass**. Byte-identical SVG+MIDI snapshots; this is the real proof that a refactor changed nothing functional. **Linux-only baselines — see below.** |
+| `npm run lint`         | ESLint — **0 errors** (~82 SonarJS _warnings_ are an accepted refactor backlog, not failures)                                                                                       |
+| `npm run typecheck`    | `tsc --noEmit` checkJs via JSDoc — ~296 known errors baseline; changes should be typecheck-**neutral**                                                                              |
+| `npm run knip`         | no unused exports/files                                                                                                                                                             |
+| `npm run format:check` | Prettier clean (`npm run format` to fix)                                                                                                                                            |
+| `npm run check`        | lint + typecheck + format:check + test in one shot                                                                                                                                  |
+
+**The golden-master baselines are committed for Linux only** (`*-chromium-linux.*`).
+Playwright keys snapshot filenames on the platform, so on macOS there is no baseline
+to compare against: the first `npm run test:e2e` _writes_ `-darwin` files from its own
+output and reports those tests as failed, and a second run then "passes" against
+snapshots it just minted. That pass proves nothing. On macOS, `git clean -f tests-e2e/`
+to discard the generated `-darwin` files; the real comparison has to happen on Linux.
+No CI workflow runs the E2E suite today, so nothing checks the Linux baselines
+automatically.
 
 Standing rule for all refactoring here: **nothing functional may change** —
 prove it with the golden-master E2E, not by eyeballing.
