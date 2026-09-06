@@ -952,11 +952,14 @@ input[type='checkbox']:not(:checked) + label {
 }
 
 .kick2 {
-  position: relative;
   display: inline-block;
-  width: 26px;
-  height: 34px;
-  vertical-align: top;
+  position: relative;
+  border: 1px solid;
+  border-color: transparent;
+  width: 29px;
+  height: 100%;
+  margin-right: 2px;
+  margin-left: 2px;
 }
 
 .kick2_circle {

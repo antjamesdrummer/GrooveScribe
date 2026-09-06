@@ -71,15 +71,23 @@ export const constant_OUR_MIDI_SNARE_FLAM = 107;
 export const constant_OUR_MIDI_SNARE_DRAG = 103;
 export const constant_OUR_MIDI_KICK_NORMAL = 35;
 /**
- * The left foot's bass drum note: General MIDI "Bass Drum 1" against the right
- * foot's "Acoustic Bass Drum".
+ * The left foot plays the SAME bass drum note as the right, a little softer.
  *
- * A real double pedal has both beaters on one head and sounds like one drum.
- * These are deliberately NOT identical, because the point of writing a double
- * pedal part is to practise the alternation, and you cannot hear whether you
- * played it right if both feet make the same noise.
+ * It was note 36 (General MIDI "Bass Drum 1") for one bar of thinking, and that
+ * was silent: soundfont/gunshot-ogg.js has `"C2": ""` — an entry with no
+ * sample. Every note this app can make has to exist in that one vendored
+ * soundfont, and 36 does not.
+ *
+ * Velocity turns out to be the better answer anyway. A double pedal is two
+ * beaters on one head and genuinely IS one drum, so a second pitch was always a
+ * small lie told for a good reason; a quieter stroke tells the feet apart
+ * without pretending there are two drums. It also matches how the app
+ * distinguishes them (VOICE_PLANS in lib/exercises/voiceSounds.ts), so a
+ * groove sounds the same in both places.
  */
-export const constant_OUR_MIDI_KICK2_NORMAL = 36;
+export const constant_OUR_MIDI_KICK2_NORMAL = 35;
+/** Clearly softer than a normal stroke, nowhere near as quiet as a ghost. */
+export const constant_OUR_MIDI_VELOCITY_KICK2 = 62;
 export const constant_OUR_MIDI_TOM1_NORMAL = 48;
 export const constant_OUR_MIDI_TOM2_NORMAL = 47;
 export const constant_OUR_MIDI_TOM3_NORMAL = 45;

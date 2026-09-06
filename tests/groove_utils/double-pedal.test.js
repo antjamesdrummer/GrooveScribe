@@ -5,6 +5,8 @@ import {
   constant_ABC_KI_Normal,
   constant_OUR_MIDI_KICK2_NORMAL,
   constant_OUR_MIDI_KICK_NORMAL,
+  constant_OUR_MIDI_VELOCITY_KICK2,
+  constant_OUR_MIDI_VELOCITY_NORMAL,
 } from '../../js/constants.js';
 
 /**
@@ -118,29 +120,45 @@ describe('double pedal (K2)', () => {
       return found;
     };
 
-    it('gives the two feet different notes, so you can hear which played', () => {
-      // The whole reason they are not the same sample: a double pedal exercise
-      // is practised to check the alternation, and a sound that cannot tell you
-      // which foot played cannot tell you whether you got it right.
-      const gd = gu.getGrooveDataFromUrlString(url('&K=|o-------o-------|&K2=|----o-------o---|'));
-      const notes = notesIn(gd);
+    it('makes a sound at all for the left foot', () => {
+      // It used to be note 36, which is silent: the vendored soundfont has
+      // `"C2": ""` -- an entry with no sample. A left foot that writes cleanly
+      // and plays nothing is the worst of both worlds.
+      const gd = gu.getGrooveDataFromUrlString(url('&K2=|----o-----------|'));
+      expect(notesIn(gd)).toContain(constant_OUR_MIDI_KICK2_NORMAL);
+    });
 
-      expect(notes).toContain(constant_OUR_MIDI_KICK_NORMAL);
-      expect(notes).toContain(constant_OUR_MIDI_KICK2_NORMAL);
-      expect(constant_OUR_MIDI_KICK2_NORMAL).not.toBe(constant_OUR_MIDI_KICK_NORMAL);
+    it('plays the same drum as the right foot, more quietly', () => {
+      // A double pedal is two beaters on one head, so the same note IS the
+      // truth. Velocity is what tells the feet apart, which is also how the
+      // app does it -- so a groove sounds the same in both places.
+      expect(constant_OUR_MIDI_KICK2_NORMAL).toBe(constant_OUR_MIDI_KICK_NORMAL);
+      expect(constant_OUR_MIDI_VELOCITY_KICK2).toBeLessThan(constant_OUR_MIDI_VELOCITY_NORMAL);
+
+      // The relationship IS the contract: same drum, lower velocity. Asserted
+      // on the constants because the encoded file cannot be scanned for
+      // velocities reliably — 0x99 occurs inside delta times too, so a raw
+      // scan reports bytes that are not velocities at all.
+      const gd = gu.getGrooveDataFromUrlString(url('&K2=|o---------------|'));
+      expect(notesIn(gd)).toContain(constant_OUR_MIDI_KICK2_NORMAL);
     });
 
     it('plays nothing extra when the lane is empty', () => {
-      const gd = gu.getGrooveDataFromUrlString(url('&K=|o-------o-------|'));
-      expect(notesIn(gd)).not.toContain(constant_OUR_MIDI_KICK2_NORMAL);
+      const withLane = gu.getGrooveDataFromUrlString(
+        url('&K=|o---------------|&K2=|--o-------------|')
+      );
+      const without = gu.getGrooveDataFromUrlString(url('&K=|o---------------|'));
+
+      // One extra stroke for the one extra left-foot note, and no more.
+      expect(notesIn(withLane).length).toBe(notesIn(without).length + 1);
     });
 
-    it('sounds both feet when they land together', () => {
+    it('sounds one stroke, not two, when both feet land together', () => {
+      // Both beaters on the same head at the same moment is ONE stroke. A
+      // second note-on for a note already sounding would cut it off or flam.
       const gd = gu.getGrooveDataFromUrlString(url('&K=|o---------------|&K2=|o---------------|'));
-      const notes = notesIn(gd);
-
-      expect(notes.filter((n) => n === constant_OUR_MIDI_KICK_NORMAL).length).toBe(1);
-      expect(notes.filter((n) => n === constant_OUR_MIDI_KICK2_NORMAL).length).toBe(1);
+      const strokes = notesIn(gd).filter((n) => n === constant_OUR_MIDI_KICK_NORMAL);
+      expect(strokes.length).toBe(1);
     });
   });
 });

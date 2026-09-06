@@ -44,6 +44,7 @@ import {
   constant_OUR_MIDI_HIHAT_STACKER,
   constant_OUR_MIDI_KICK_NORMAL,
   constant_OUR_MIDI_KICK2_NORMAL,
+  constant_OUR_MIDI_VELOCITY_KICK2,
   constant_OUR_MIDI_METRONOME_1,
   constant_OUR_MIDI_METRONOME_NORMAL,
   constant_OUR_MIDI_SNARE_ACCENT,
@@ -412,12 +413,16 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
         //prev_kick_note = kick_note;
       }
 
-      if (kick2_note !== false) {
+      // Both beaters on the same head at the same moment is ONE stroke, not
+      // two. Sending a second note-on for a note already sounding would either
+      // cut the first off or flam against it, and neither is what a drummer
+      // playing both feet together hears.
+      if (kick2_note !== false && kick_note === false) {
         midiTrack.addNoteOn(
           midi_channel,
           kick2_note,
           delay_for_next_note,
-          constant_OUR_MIDI_VELOCITY_NORMAL
+          constant_OUR_MIDI_VELOCITY_KICK2
         );
         delay_for_next_note = 0; // zero the delay
       }
