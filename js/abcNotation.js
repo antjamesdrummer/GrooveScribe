@@ -178,13 +178,22 @@ function snare_HH_kick_ABC_for_triplets(
   kick_stems_up,
   timeSigTop,
   timeSigBottom,
-  numberOfMeasuresPerLine
+  numberOfMeasuresPerLine,
+  // Last and optional: this function is called positionally from several
+  // places, and a parameter in the middle would silently shift every one.
+  kick2_array
 ) {
   var scaler = 1; // we are always in 48 notes here, and the ABC needs to think we are in 48 since the specified division is 1/32
   var ABC_String = '';
   var stickings_voice_string = 'V:Stickings\n';
   var hh_snare_voice_string = 'V:Hands stem=up\n%%voicemap drum\n';
   var kick_voice_string = 'V:Feet stem=down\n%%voicemap drum\n';
+
+  // Both feet share one voice and one stem direction. A double pedal is two
+  // beaters on one drum, and giving the left foot its own ABC voice would draw
+  // two independent rhythms where the drummer is playing one.
+  var feet_arrays = kick2_array ? [kick_array, kick2_array] : [kick_array];
+
   var all_drum_array_of_array;
 
   // console.log(HH_array);
@@ -193,9 +202,12 @@ function snare_HH_kick_ABC_for_triplets(
   // console.log(sub_division);
 
   if (kick_stems_up) {
-    all_drum_array_of_array = [snare_array, HH_array, kick_array];
+    // Both feet, not just the kick. kickStemsUp is the default, so leaving the
+    // left foot out here dropped every one of its notes from a triplet groove
+    // while the straight one looked fine.
+    all_drum_array_of_array = [snare_array, HH_array].concat(feet_arrays);
   } else {
-    all_drum_array_of_array = [snare_array, HH_array]; // exclude the kick
+    all_drum_array_of_array = [snare_array, HH_array]; // exclude the feet
   }
   if (toms_array) all_drum_array_of_array = all_drum_array_of_array.concat(toms_array);
 
@@ -243,7 +255,7 @@ function snare_HH_kick_ABC_for_triplets(
           kick_voice_string = '';
         } else {
           hh_snare_voice_string += getABCforNote(all_drum_array_of_array, i, 8, scaler);
-          kick_voice_string += getABCforNote([kick_array], i, 8, scaler);
+          kick_voice_string += getABCforNote(feet_arrays, i, 8, scaler);
         }
 
         skip_adding_more_notes = true;
@@ -292,7 +304,7 @@ function snare_HH_kick_ABC_for_triplets(
               4,
               scaler
             );
-            kick_voice_string += getABCforNote([kick_array], eighth_index, 4, scaler);
+            kick_voice_string += getABCforNote(feet_arrays, eighth_index, 4, scaler);
           }
         }
 
@@ -344,7 +356,7 @@ function snare_HH_kick_ABC_for_triplets(
               2,
               scaler
             );
-            kick_voice_string += getABCforNote([kick_array], eighth_index, 2, scaler);
+            kick_voice_string += getABCforNote(feet_arrays, eighth_index, 2, scaler);
           }
         }
 
@@ -428,13 +440,7 @@ function snare_HH_kick_ABC_for_triplets(
             scaler,
             false
           );
-          kick_voice_string += getABCforRest(
-            [kick_array],
-            i,
-            grouping_size_for_rests,
-            scaler,
-            true
-          );
+          kick_voice_string += getABCforRest(feet_arrays, i, grouping_size_for_rests, scaler, true);
         }
       }
 
@@ -445,7 +451,7 @@ function snare_HH_kick_ABC_for_triplets(
         kick_voice_string = '';
       } else {
         hh_snare_voice_string += getABCforNote(all_drum_array_of_array, i, end_of_group, scaler);
-        kick_voice_string += getABCforNote([kick_array], i, end_of_group, scaler);
+        kick_voice_string += getABCforNote(feet_arrays, i, end_of_group, scaler);
       }
     }
 
@@ -503,13 +509,22 @@ function snare_HH_kick_ABC_for_quads(
   kick_stems_up,
   timeSigTop,
   timeSigBottom,
-  numberOfMeasuresPerLine
+  numberOfMeasuresPerLine,
+  // Last and optional: this function is called positionally from several
+  // places, and a parameter in the middle would silently shift every one.
+  kick2_array
 ) {
   var scaler = 1; // we are always in 32ths notes here
   var ABC_String = '';
   var stickings_voice_string = 'V:Stickings\n'; // for stickings.  they are all rests with text comments added
   var hh_snare_voice_string = 'V:Hands stem=up\n%%voicemap drum\n'; // for hh and snare
   var kick_voice_string = 'V:Feet stem=down\n%%voicemap drum\n'; // for kick drum
+
+  // Both feet share one voice and one stem direction. A double pedal is two
+  // beaters on one drum, and giving the left foot its own ABC voice would draw
+  // two independent rhythms where the drummer is playing one.
+  var feet_arrays = kick2_array ? [kick_array, kick2_array] : [kick_array];
+
   var all_drum_array_of_array;
 
   all_drum_array_of_array = [snare_array, HH_array]; // exclude the kick
@@ -517,7 +532,7 @@ function snare_HH_kick_ABC_for_quads(
   // Add the kick array last to solve a subtle bug with the kick foot splash combo note
   // If the combo note comes last in a multi note event it will space correctly.  If it
   // comes first it will create a wrong sized note
-  if (kick_stems_up) all_drum_array_of_array = all_drum_array_of_array.concat([kick_array]);
+  if (kick_stems_up) all_drum_array_of_array = all_drum_array_of_array.concat(feet_arrays);
 
   for (var i = 0; i < num_notes; i++) {
     var grouping_size_for_rests = abc_gen_note_grouping_size(false, timeSigTop, timeSigBottom);
@@ -568,7 +583,7 @@ function snare_HH_kick_ABC_for_quads(
           scaler,
           false
         );
-        kick_voice_string += getABCforRest([kick_array], i, grouping_size_for_rests, scaler, false);
+        kick_voice_string += getABCforRest(feet_arrays, i, grouping_size_for_rests, scaler, false);
       }
     }
 
@@ -579,7 +594,7 @@ function snare_HH_kick_ABC_for_quads(
       kick_voice_string = '';
     } else {
       hh_snare_voice_string += getABCforNote(all_drum_array_of_array, i, end_of_group, scaler);
-      kick_voice_string += getABCforNote([kick_array], i, end_of_group, scaler);
+      kick_voice_string += getABCforNote(feet_arrays, i, end_of_group, scaler);
     }
 
     if (
@@ -739,7 +754,8 @@ export function create_ABC_from_snare_HH_kick_arrays(
   notes_per_measure,
   kick_stems_up,
   timeSigTop,
-  timeSigBottom
+  timeSigBottom,
+  kick2_array
 ) {
   // convert sticking count symbol to the actual count
   // do this right before ABC output so it can't every get encoded into something that gets saved.
@@ -771,7 +787,8 @@ export function create_ABC_from_snare_HH_kick_arrays(
       kick_stems_up,
       timeSigTop,
       timeSigBottom,
-      numberOfMeasuresPerLine
+      numberOfMeasuresPerLine,
+      kick2_array
     );
   } else {
     return snare_HH_kick_ABC_for_quads(
@@ -787,7 +804,8 @@ export function create_ABC_from_snare_HH_kick_arrays(
       kick_stems_up,
       timeSigTop,
       timeSigBottom,
-      numberOfMeasuresPerLine
+      numberOfMeasuresPerLine,
+      kick2_array
     );
   }
 }
@@ -824,6 +842,13 @@ export function createABCFromGrooveData(gu, myGrooveData, renderWidth) {
   );
   var FullNoteKickArray = scaleNoteArrayToFullSize(
     myGrooveData.kick_array,
+    myGrooveData.numberOfMeasures,
+    myGrooveData.notesPerMeasure,
+    myGrooveData.numBeats,
+    myGrooveData.noteValue
+  );
+  var FullNoteKick2Array = scaleNoteArrayToFullSize(
+    myGrooveData.kick2_array,
     myGrooveData.numberOfMeasures,
     myGrooveData.notesPerMeasure,
     myGrooveData.numBeats,
@@ -876,7 +901,8 @@ export function createABCFromGrooveData(gu, myGrooveData, renderWidth) {
     ), // notes_per_measure, We scaled up to 48/32 above
     myGrooveData.kickStemsUp,
     myGrooveData.numBeats,
-    myGrooveData.noteValue
+    myGrooveData.noteValue,
+    FullNoteKick2Array
   );
 
   gu.note_mapping_array = create_note_mapping_array_for_highlighting(
@@ -884,7 +910,8 @@ export function createABCFromGrooveData(gu, myGrooveData, renderWidth) {
     FullNoteSnareArray,
     FullNoteKickArray,
     FullNoteTomsArray,
-    FullNoteHHArray.length
+    FullNoteHHArray.length,
+    FullNoteKick2Array
   );
 
   // console.log(fullABC);

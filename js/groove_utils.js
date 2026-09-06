@@ -662,14 +662,16 @@ function GrooveUtils() {
     snare_array,
     kick_array,
     toms_array,
-    num_notes
+    num_notes,
+    kick2_array
   ) {
     return _create_note_mapping_array_for_highlighting(
       HH_array,
       snare_array,
       kick_array,
       toms_array,
-      num_notes
+      num_notes,
+      kick2_array
     );
   };
 
@@ -718,7 +720,8 @@ function GrooveUtils() {
     notes_per_measure,
     kick_stems_up,
     timeSigTop,
-    timeSigBottom
+    timeSigBottom,
+    kick2_array
   ) {
     return _create_ABC_from_snare_HH_kick_arrays(
       root,
@@ -733,7 +736,8 @@ function GrooveUtils() {
       notes_per_measure,
       kick_stems_up,
       timeSigTop,
-      timeSigBottom
+      timeSigBottom,
+      kick2_array
     );
   };
 
@@ -1036,7 +1040,8 @@ function GrooveUtils() {
     num_notes_for_swing,
     swing_percentage,
     timeSigTop,
-    timeSigBottom
+    timeSigBottom,
+    Kick2_Array
   ) {
     return _MIDI_from_HH_Snare_Kick_Arrays(
       root,
@@ -1051,7 +1056,8 @@ function GrooveUtils() {
       num_notes_for_swing,
       swing_percentage,
       timeSigTop,
-      timeSigBottom
+      timeSigBottom,
+      Kick2_Array
     );
   };
 

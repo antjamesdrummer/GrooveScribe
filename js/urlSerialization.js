@@ -15,6 +15,7 @@ import {
   GetDefaultSnareGroove,
   GetDefaultKickGroove,
   GetDefaultTomGroove,
+  GetEmptyGroove,
 } from './noteArrays.js';
 
 export function getQueryVariableFromString(variable, def_value, my_string) {
@@ -123,6 +124,25 @@ export function getGrooveDataFromUrlString(encodedURLData, config = {}) {
       myGrooveData.numberOfMeasures
     );
   }
+
+  // The left foot's bass drum lane, for a double pedal.
+  //
+  // Presence of the parameter turns the lane on, exactly as the toms do below.
+  // One source of truth beats a separate DoublePedal= flag that could disagree
+  // with the notes — and it means a shared link opens showing the lane it needs
+  // without anybody having to set anything.
+  var Kick2_string = getQueryVariableFromString('K2', false, encodedURLData);
+  if (Kick2_string) {
+    myGrooveData.showDoublePedal = true;
+  } else {
+    Kick2_string = GetEmptyGroove(myGrooveData.notesPerMeasure, myGrooveData.numberOfMeasures);
+  }
+  myGrooveData.kick2_array = noteArraysFromURLData(
+    'K2',
+    Kick2_string,
+    myGrooveData.notesPerMeasure,
+    myGrooveData.numberOfMeasures
+  );
 
   // Get the Toms
   for (i = 0; i < 4; i++) {
@@ -297,6 +317,23 @@ export function getUrlStringFromGrooveData(myGrooveData, url_destination, editor
     );
 
   fullURL += HH + Snare + Kick;
+
+  // Emitted whenever the lane is shown, even when empty — same as the toms.
+  // An author who turned the pedal on and shared before writing anything gets
+  // a link that still opens with the lane on, rather than one that quietly
+  // forgets what they set.
+  if (myGrooveData.showDoublePedal) {
+    fullURL +=
+      '&K2=|' +
+      tabLineFromAbcNoteArray(
+        'K2',
+        myGrooveData.kick2_array,
+        true,
+        true,
+        total_notes,
+        myGrooveData.notesPerMeasure
+      );
+  }
 
   // only add if we need them.  // they are long and ugly. :)
   if (myGrooveData.showToms) {

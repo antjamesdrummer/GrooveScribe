@@ -117,6 +117,11 @@ export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
     ')" oncontextmenu="event.preventDefault(); myGrooveWriter.noteLabelClick(event, \'kick\', ' +
     baseindex +
     ')">Kick</div>\
+									<div class="kick2-label" onClick="myGrooveWriter.noteLabelClick(event, \'kick2\', ' +
+    baseindex +
+    ')" oncontextmenu="event.preventDefault(); myGrooveWriter.noteLabelClick(event, \'kick2\', ' +
+    baseindex +
+    ')">Left Foot</div>\
 								</div>\
 								<div class="music-line-container">\
 									\
@@ -464,6 +469,52 @@ export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
     '<span class="unmuteKickButton" id="unmutekickButton' +
     baseindex +
     '" onClick=\'myGrooveWriter.muteInstrument("kick", ' +
+    baseindex +
+    ', false)\'><span class="fa-stack unmuteStack"><i class="fa fa-ban fa-stack-2x" style="color:red"></i><i class="fa fa-volume-down fa-stack-1x"></i></span>';
+  newHTML += '<div class="end_note_space"></div>\n</div>\n';
+
+  // Left foot on the bass drum, for a double pedal.
+  //
+  // Below the kick, because it is the lower of the two on the stave — the
+  // bottom line against the kick's space — and because both feet reading
+  // downwards matches how they are drawn.
+  //
+  // One state only: a note or nothing. The kick row above carries the hi-hat
+  // splash, which is the same foot; see the double-pedal toggle in
+  // groove_writer.js for what happens to it while this row is showing.
+  newHTML +=
+    '\
+										<div class="kick2-container" id="kick2-container">\
+											<div class="opening_note_space"> </div> ';
+  for (var k = indexStartForNotes; k < ctx.notesPerMeasure + indexStartForNotes; k++) {
+    newHTML +=
+      '\
+														<div id="kick2-' +
+      k +
+      '" class="kick2" onClick="myGrooveWriter.noteLeftClick(event, \'kick2\', ' +
+      k +
+      ')" oncontextmenu="event.preventDefault(); myGrooveWriter.noteRightClick(event, \'kick2\', ' +
+      k +
+      ')" onmouseenter="myGrooveWriter.noteOnMouseEnter(event, \'kick2\', ' +
+      k +
+      ')">\
+														<div class="kick2_circle note_part" id="kick2_circle' +
+      k +
+      '"></div>\
+														</div> \n\
+													';
+
+    if (
+      (k - (indexStartForNotes - 1)) % ctx.noteGrouping === 0 &&
+      k < ctx.notesPerMeasure + indexStartForNotes - 1
+    ) {
+      newHTML += '<div class="space_between_note_groups"> </div> ';
+    }
+  }
+  newHTML +=
+    '<span class="unmuteKick2Button" id="unmutekick2Button' +
+    baseindex +
+    '" onClick=\'myGrooveWriter.muteInstrument("kick2", ' +
     baseindex +
     ', false)\'><span class="fa-stack unmuteStack"><i class="fa fa-ban fa-stack-2x" style="color:red"></i><i class="fa fa-volume-down fa-stack-1x"></i></span>';
   newHTML += '<div class="end_note_space"></div>\n</div>\n';

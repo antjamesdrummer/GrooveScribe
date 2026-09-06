@@ -15,6 +15,7 @@ import {
   constant_ABC_HH_Ride_Bell,
   constant_ABC_HH_Stacker,
   constant_ABC_KI_Normal,
+  constant_ABC_KI2_Normal,
   constant_ABC_KI_SandK,
   constant_ABC_KI_Splash,
   constant_ABC_OFF,
@@ -86,6 +87,9 @@ function tablatureToABCNotationPerNote(drumType, tablatureChar) {
         case 'K':
         case 'B':
           return constant_ABC_KI_Normal;
+        //break;
+        case 'K2':
+          return constant_ABC_KI2_Normal;
         //break;
         case 'T1':
           return constant_ABC_T1_Normal;
@@ -238,6 +242,7 @@ function abcNotationToTablaturePerNote(drumType, abcChar) {
       break;
     case constant_ABC_SN_Normal:
     case constant_ABC_KI_Normal:
+    case constant_ABC_KI2_Normal:
     case constant_ABC_T1_Normal:
     case constant_ABC_T2_Normal:
     case constant_ABC_T3_Normal:
@@ -455,7 +460,12 @@ export function create_note_mapping_array_for_highlighting(
   snare_array,
   kick_array,
   toms_array,
-  num_notes
+  num_notes,
+  // Last and optional, so every existing caller keeps working. A slot where
+  // ONLY the left foot plays is still a slot the playhead has to stop on —
+  // leaving it out would skip those notes, and on a double-pedal exercise that
+  // is most of them.
+  kick2_array
 ) {
   var mapping_array = new Array(num_notes); // create large empty array
 
@@ -463,7 +473,8 @@ export function create_note_mapping_array_for_highlighting(
     if (
       (HH_array && HH_array[i] !== false) ||
       (snare_array && snare_array[i] !== false) ||
-      (kick_array && kick_array[i] !== false)
+      (kick_array && kick_array[i] !== false) ||
+      (kick2_array && kick2_array[i] !== false)
     ) {
       mapping_array[i] = true;
     } else {

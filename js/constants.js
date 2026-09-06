@@ -30,6 +30,16 @@ export const constant_ABC_SN_Drag = '{/cc}c';
 export const constant_ABC_KI_SandK = '[F^d,]'; // kick & splash
 export const constant_ABC_KI_Splash = '^d,'; // splash only
 export const constant_ABC_KI_Normal = 'F';
+/**
+ * Left foot on the bass drum, for a double pedal.
+ *
+ * The bottom line of the stave — E above middle C in ABC's naming, which is the
+ * line below the kick's own space (F). Written as an ordinary notehead: it is a
+ * bass drum note, and the only thing distinguishing it is which foot plays it.
+ *
+ * Nothing else in this table uses bare 'E', which is what makes the line free.
+ */
+export const constant_ABC_KI2_Normal = 'E';
 export const constant_ABC_T1_Normal = 'e';
 export const constant_ABC_T2_Normal = 'd';
 export const constant_ABC_T3_Normal = 'B';
@@ -60,6 +70,16 @@ export const constant_OUR_MIDI_SNARE_BUZZ = 104;
 export const constant_OUR_MIDI_SNARE_FLAM = 107;
 export const constant_OUR_MIDI_SNARE_DRAG = 103;
 export const constant_OUR_MIDI_KICK_NORMAL = 35;
+/**
+ * The left foot's bass drum note: General MIDI "Bass Drum 1" against the right
+ * foot's "Acoustic Bass Drum".
+ *
+ * A real double pedal has both beaters on one head and sounds like one drum.
+ * These are deliberately NOT identical, because the point of writing a double
+ * pedal part is to practise the alternation, and you cannot hear whether you
+ * played it right if both feet make the same noise.
+ */
+export const constant_OUR_MIDI_KICK2_NORMAL = 36;
 export const constant_OUR_MIDI_TOM1_NORMAL = 48;
 export const constant_OUR_MIDI_TOM2_NORMAL = 47;
 export const constant_OUR_MIDI_TOM3_NORMAL = 45;

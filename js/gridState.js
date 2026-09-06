@@ -24,6 +24,7 @@ import {
   constant_ABC_HH_Ride_Bell,
   constant_ABC_HH_Stacker,
   constant_ABC_KI_Normal,
+  constant_ABC_KI2_Normal,
   constant_ABC_KI_SandK,
   constant_ABC_KI_Splash,
   constant_ABC_SN_Accent,
@@ -185,6 +186,35 @@ export function get_kick_state(id, returnType) {
   else if (returnType == 'URL') return '-'; // off (rest)
 }
 
+export function is_kick2_on(id) {
+  return get_kick2_state(id, 'ABC') !== false;
+}
+
+/**
+ * The left foot's bass drum, for a double pedal.
+ *
+ * One state, unlike the kick above: a note or nothing. The kick row carries the
+ * hi-hat splash as well because that is also the left foot — which is precisely
+ * why the double-pedal toggle hides the splash while this row is showing.
+ */
+export function get_kick2_state(id, returnType) {
+  var element = document.getElementById('kick2_circle' + id);
+  var isOn = element && element.style.backgroundColor == constant_note_on_color_rgb;
+
+  if (returnType != 'ABC' && returnType != 'URL') {
+    console.log('bad returnType in get_kick2_state()');
+    returnType = 'ABC';
+  }
+
+  if (isOn) {
+    if (returnType == 'ABC') return constant_ABC_KI2_Normal;
+    return 'o';
+  }
+
+  if (returnType == 'ABC') return false;
+  return '-';
+}
+
 export function is_hh_on(id) {
   var state = get_hh_state(id, 'ABC');
 
@@ -322,7 +352,9 @@ export function get32NoteArrayFromClickableUI(
   Kick_Array,
   Toms_Array,
   startIndexForClickableUI,
-  ctx
+  ctx,
+  // Last, so every existing positional caller is untouched.
+  Kick2_Array
 ) {
   var scaler = getNoteScaler(ctx.notesPerMeasure, ctx.numBeatsPerMeasure, ctx.noteValuePerMeasure); // fill proportionally
 
@@ -345,6 +377,9 @@ export function get32NoteArrayFromClickableUI(
     Snare_Array[array_index] = get_snare_state(i + startIndexForClickableUI, 'ABC');
 
     Kick_Array[array_index] = get_kick_state(i + startIndexForClickableUI, 'ABC');
+
+    if (Kick2_Array && ctx.doublePedalVisible)
+      Kick2_Array[array_index] = get_kick2_state(i + startIndexForClickableUI, 'ABC');
   }
 
   var num_notes = Snare_Array.length;
@@ -360,7 +395,8 @@ export function muteArrayFromClickableUI(
   Kick_Array,
   Toms_Array,
   measureIndex,
-  isInstrumentMuted
+  isInstrumentMuted,
+  Kick2_Array
 ) {
   if (isInstrumentMuted('hh', measureIndex + 1))
     fill_array_with_value_false(HH_Array, HH_Array.length);
@@ -368,6 +404,8 @@ export function muteArrayFromClickableUI(
     fill_array_with_value_false(Snare_Array, Snare_Array.length);
   if (isInstrumentMuted('kick', measureIndex + 1))
     fill_array_with_value_false(Kick_Array, Kick_Array.length);
+  if (Kick2_Array && isInstrumentMuted('kick2', measureIndex + 1))
+    fill_array_with_value_false(Kick2_Array, Kick2_Array.length);
 
   for (var i = 0; i < Toms_Array.length; i++) {
     if (isInstrumentMuted('tom' + (i + 1), measureIndex + 1))

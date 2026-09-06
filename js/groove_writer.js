@@ -38,6 +38,7 @@ import {
   constant_ABC_HH_Ride_Bell,
   constant_ABC_HH_Stacker,
   constant_ABC_KI_Normal,
+  constant_ABC_KI2_Normal,
   constant_ABC_KI_SandK,
   constant_ABC_KI_Splash,
   constant_ABC_SN_Accent,
@@ -59,6 +60,7 @@ import {
   constant_OUR_MIDI_HIHAT_COW_BELL,
   constant_OUR_MIDI_HIHAT_CRASH,
   constant_OUR_MIDI_HIHAT_FOOT,
+  constant_OUR_MIDI_KICK2_NORMAL,
   constant_OUR_MIDI_HIHAT_METRONOME_ACCENT,
   constant_OUR_MIDI_HIHAT_METRONOME_NORMAL,
   constant_OUR_MIDI_HIHAT_NORMAL,
@@ -223,6 +225,12 @@ function GrooveWriter() {
   function get_kick_state(id, returnType) {
     return _grid.get_kick_state(id, returnType);
   }
+  function is_kick2_on(id) {
+    return _grid.is_kick2_on(id);
+  }
+  function get_kick2_state(id, returnType) {
+    return _grid.get_kick2_state(id, returnType);
+  }
   function is_hh_on(id) {
     return _grid.is_hh_on(id);
   }
@@ -348,6 +356,33 @@ function GrooveWriter() {
         break;
       default:
         console.log('bad switch in set_kick_state');
+        break;
+    }
+  }
+
+  /**
+   * The left foot's bass drum, for a double pedal.
+   *
+   * Two states only. The kick row above has four because it carries the hi-hat
+   * splash as well, which is the same foot — and is why the double-pedal
+   * toggle hides the splash while this row is showing.
+   */
+  function set_kick2_state(id, mode, make_sound) {
+    var circle = document.getElementById('kick2_circle' + id);
+    if (!circle) return;
+
+    switch (mode) {
+      case 'off':
+        circle.style.backgroundColor = constant_note_off_color_hex;
+        circle.style.borderColor = constant_note_border_color_hex;
+        break;
+      case 'normal':
+        circle.style.backgroundColor = constant_note_on_color_hex;
+        circle.style.borderColor = constant_note_border_color_hex;
+        if (make_sound) play_single_note_for_note_setting(constant_OUR_MIDI_KICK2_NORMAL);
+        break;
+      default:
+        console.log('bad switch in set_kick2_state');
         break;
     }
   }
@@ -1165,6 +1200,9 @@ function GrooveWriter() {
       case 'snare':
         setFunction = set_snare_state;
         break;
+      case 'kick2':
+        setFunction = set_kick2_state;
+        break;
       case 'kick':
         setFunction = set_kick_state;
         break;
@@ -1336,6 +1374,9 @@ function GrooveWriter() {
         case 'kick':
           set_kick_state(id, is_kick_on(id) ? 'off' : 'normal', true);
           break;
+        case 'kick2':
+          set_kick2_state(id, is_kick2_on(id) ? 'off' : 'normal', true);
+          break;
         case 'sticking':
           sticking_rotate_state(id);
           break;
@@ -1363,6 +1404,9 @@ function GrooveWriter() {
         break;
       case 'tom2':
         set_tom2_state(id, new_setting, true);
+        break;
+      case 'kick2':
+        set_kick2_state(id, new_setting, true);
         break;
       case 'tom4':
         set_tom4_state(id, new_setting, true);
@@ -1399,6 +1443,9 @@ function GrooveWriter() {
           break;
         case 'kick':
           set_kick_state(id, action == 'off' ? 'off' : 'normal', true);
+          break;
+        case 'kick2':
+          set_kick2_state(id, action == 'off' ? 'off' : 'normal', true);
           break;
         case 'tom1':
           set_tom_state(id, 1, action == 'off' ? 'off' : 'normal', true);
@@ -1644,7 +1691,8 @@ function GrooveWriter() {
     Snare_Array,
     Kick_Array,
     Toms_Array,
-    startIndexForClickableUI
+    startIndexForClickableUI,
+    Kick2_Array
   ) {
     return _grid.get32NoteArrayFromClickableUI(
       Sticking_Array,
@@ -1659,7 +1707,9 @@ function GrooveWriter() {
         noteValuePerMeasure: class_note_value_per_measure,
         stickingsVisible: isStickingsVisible(),
         tomsVisible: isTomsVisible(),
-      }
+        doublePedalVisible: isDoublePedalVisible(),
+      },
+      Kick2_Array
     );
   }
 
@@ -1689,6 +1739,7 @@ function GrooveWriter() {
     var HH_Array = get_empty_note_array_in_32nds();
     var Snare_Array = get_empty_note_array_in_32nds();
     var Kick_Array = get_empty_note_array_in_32nds();
+    var Kick2_Array = get_empty_note_array_in_32nds();
     var Toms_Array = [
       get_empty_note_array_in_32nds(),
       get_empty_note_array_in_32nds(),
@@ -1709,7 +1760,8 @@ function GrooveWriter() {
       Snare_Array,
       Kick_Array,
       Toms_Array,
-      0
+      0,
+      Kick2_Array
     );
     muteArrayFromClickableUI(Sticking_Array, HH_Array, Snare_Array, Kick_Array, Toms_Array, 0);
 
@@ -1893,6 +1945,7 @@ function GrooveWriter() {
     myGrooveData.noteValue = class_note_value_per_measure;
     myGrooveData.showStickings = isStickingsVisible();
     myGrooveData.showToms = isTomsVisible();
+    myGrooveData.showDoublePedal = isDoublePedalVisible();
     myGrooveData.title = document.getElementById('tuneTitle').value;
     myGrooveData.author = document.getElementById('tuneAuthor').value;
     myGrooveData.comments = document.getElementById('tuneComments').value;
@@ -1908,6 +1961,7 @@ function GrooveWriter() {
       myGrooveData.hh_array = [];
       myGrooveData.snare_array = [];
       myGrooveData.kick_array = [];
+      myGrooveData.kick2_array = [];
       myGrooveData.toms_array = [[], [], [], []];
 
       // query the clickable UI and generate a arrays representing the notes of all measures
@@ -1918,6 +1972,10 @@ function GrooveWriter() {
         myGrooveData.hh_array.push(get_hh_state(i, 'ABC'));
         myGrooveData.snare_array.push(get_snare_state(i, 'ABC'));
         myGrooveData.kick_array.push(get_kick_state(i, 'ABC'));
+        // Pushed as false rather than skipped when hidden, so the lane stays
+        // the same length as every other one — a short array silently
+        // misaligns every note after the point it ran out.
+        myGrooveData.kick2_array.push(isDoublePedalVisible() ? get_kick2_state(i, 'ABC') : false);
 
         if (isTomsVisible()) {
           myGrooveData.toms_array[0].push(get_tom_state(i, 1, 'ABC'));
@@ -2196,6 +2254,7 @@ function GrooveWriter() {
     var HH_Array = get_empty_note_array_in_32nds();
     var Snare_Array = get_empty_note_array_in_32nds();
     var Kick_Array = get_empty_note_array_in_32nds();
+    var Kick2_Array = get_empty_note_array_in_32nds();
     var Toms_Array = [
       get_empty_note_array_in_32nds(),
       get_empty_note_array_in_32nds(),
@@ -2210,7 +2269,8 @@ function GrooveWriter() {
       Snare_Array,
       Kick_Array,
       Toms_Array,
-      0
+      0,
+      Kick2_Array
     );
 
     // abc header boilerplate
@@ -2381,6 +2441,7 @@ function GrooveWriter() {
             HH_Array = get_empty_note_array_in_32nds();
             Snare_Array = get_empty_note_array_in_32nds();
             Kick_Array = get_empty_note_array_in_32nds();
+            Kick2_Array = get_empty_note_array_in_32nds();
 
             get32NoteArrayFromClickableUI(
               Sticking_Array,
@@ -2388,7 +2449,8 @@ function GrooveWriter() {
               Snare_Array,
               Kick_Array,
               Toms_Array,
-              class_notes_per_measure * i
+              class_notes_per_measure * i,
+              Kick2_Array
             );
           }
 
@@ -2414,7 +2476,8 @@ function GrooveWriter() {
             num_notes,
             true,
             class_num_beats_per_measure,
-            class_note_value_per_measure
+            class_note_value_per_measure,
+            Kick2_Array
           );
           root.myGrooveUtils.note_mapping_array = root.myGrooveUtils.note_mapping_array.concat(
             root.myGrooveUtils.create_note_mapping_array_for_highlighting(
@@ -2542,6 +2605,7 @@ function GrooveWriter() {
     var uiTom4 = '';
     var uiSnare = '';
     var uiKick = '';
+    var uiKick2 = '';
 
     // get the encoded notes out of the UI.
     // run through all the measure, but don't include the one that we are deleting
@@ -2559,6 +2623,7 @@ function GrooveWriter() {
         uiTom4 += get_tom_state(i, 4, 'URL');
         uiSnare += get_snare_state(i, 'URL');
         uiKick += get_kick_state(i, 'URL');
+        uiKick2 += get_kick2_state(i, 'URL');
       }
     }
 
@@ -2574,7 +2639,8 @@ function GrooveWriter() {
       uiTom4,
       uiSnare,
       uiKick,
-      uiTom2
+      uiTom2,
+      uiKick2
     );
 
     updateSheetMusic();
@@ -2591,6 +2657,7 @@ function GrooveWriter() {
     var uiTom4 = '';
     var uiSnare = '';
     var uiKick = '';
+    var uiKick2 = '';
     var i;
 
     // get the encoded notes out of the UI.
@@ -2603,6 +2670,7 @@ function GrooveWriter() {
       uiTom4 += get_tom_state(i, 4, 'URL');
       uiSnare += get_snare_state(i, 'URL');
       uiKick += get_kick_state(i, 'URL');
+      uiKick2 += get_kick2_state(i, 'URL');
     }
 
     // run the the last measure twice to default in some notes
@@ -2614,6 +2682,7 @@ function GrooveWriter() {
       uiTom4 += get_tom_state(i, 4, 'URL');
       uiSnare += get_snare_state(i, 'URL');
       uiKick += get_kick_state(i, 'URL');
+      uiKick2 += get_kick2_state(i, 'URL');
     }
 
     class_number_of_measures++;
@@ -2628,7 +2697,8 @@ function GrooveWriter() {
       uiTom4,
       uiSnare,
       uiKick,
-      uiTom2
+      uiTom2,
+      uiKick2
     );
 
     // reference the button and scroll it into view
@@ -2698,6 +2768,11 @@ function GrooveWriter() {
     updateSheetMusic();
   };
 
+  function isDoublePedalVisible() {
+    var container = document.getElementById('kick2-container');
+    return !!container && container.style.display == 'block';
+  }
+
   function isTomsVisible() {
     var myElements = document.querySelectorAll('.toms-container');
     for (var i = 0; i < myElements.length; i++) {
@@ -2723,6 +2798,34 @@ function GrooveWriter() {
     if (gridWrapper) addOrRemoveKeywordFromClass(gridWrapper, 'tomsVisible', OnElseOff);
     if (OnElseOff) addOrRemoveKeywordFromClassById('showHideTomsButton', 'ClickToHide', true);
     else addOrRemoveKeywordFromClassById('showHideTomsButton', 'ClickToHide', false);
+
+    if (!dontRefreshScreen) updateSheetMusic();
+
+    return false; // don't follow the link
+  };
+
+  /**
+   * Show or hide the left foot's bass drum row.
+   *
+   * Turning it on hides the hi-hat splash from the kick row, because that is
+   * the same foot: with a double pedal it is on the bass drum and cannot also
+   * be on the hi-hat. Any splash already written is NOT erased — it stays in
+   * the note arrays and in the URL, and reappears the moment the pedal is
+   * turned off. Hiding a control is not the same as destroying the work behind
+   * it, and a drummer toggling this to see what it does should not lose a bar.
+   */
+  root.showHideDoublePedal = function (force, showElseHide, dontRefreshScreen) {
+    var OnElseOff = showHideCSS_ClassDisplay('.kick2-container', force, showElseHide, 'block');
+    showHideCSS_ClassDisplay('.kick2-label', force, showElseHide, 'block');
+
+    var gridWrapper = document.getElementById('musicalInput');
+    if (gridWrapper) addOrRemoveKeywordFromClass(gridWrapper, 'doublePedalVisible', OnElseOff);
+    addOrRemoveKeywordFromClassById('showHideDoublePedalButton', 'ClickToHide', OnElseOff);
+
+    // The splash is the left foot too. One class on the wrapper rather than a
+    // sweep over every cell, so it costs nothing on a 32-note grid and cannot
+    // fall out of step with the row it belongs to.
+    if (gridWrapper) addOrRemoveKeywordFromClass(gridWrapper, 'hideKickSplash', OnElseOff);
 
     if (!dontRefreshScreen) updateSheetMusic();
 
@@ -3101,6 +3204,8 @@ function GrooveWriter() {
       setFunction = set_snare_state;
     } else if (drumType == 'K') {
       setFunction = set_kick_state;
+    } else if (drumType == 'K2') {
+      setFunction = set_kick2_state;
     }
 
     // decode the %7C url encoding types
@@ -3243,6 +3348,8 @@ function GrooveWriter() {
       setFunction = set_snare_state;
     } else if (drumType == 'K') {
       setFunction = set_kick_state;
+    } else if (drumType == 'K2') {
+      setFunction = set_kick2_state;
     }
 
     //  DisplayIndex is the index into the notes on the HTML page  starts at 1/32\n%%flatbeams
@@ -3339,6 +3446,7 @@ function GrooveWriter() {
           setFunction(displayIndex, 'splash', false);
           break;
         case constant_ABC_KI_Normal:
+        case constant_ABC_KI2_Normal:
           setFunction(displayIndex, 'normal', false);
           break;
         case false:
@@ -3607,8 +3715,10 @@ function GrooveWriter() {
     setNotesFromABCArray('T4', myGrooveData.toms_array[3], class_number_of_measures);
     setNotesFromABCArray('S', myGrooveData.snare_array, class_number_of_measures);
     setNotesFromABCArray('K', myGrooveData.kick_array, class_number_of_measures);
+    setNotesFromABCArray('K2', myGrooveData.kick2_array, class_number_of_measures);
 
     if (myGrooveData.showToms) root.showHideToms(true, true, true);
+    if (myGrooveData.showDoublePedal) root.showHideDoublePedal(true, true, true);
 
     if (myGrooveData.showStickings) root.stickingsShowHide(true, true, true);
 
@@ -3655,10 +3765,23 @@ function GrooveWriter() {
   //
   // OMG this needs to be refactored really bad.   There is a GrooveData struct from groove utils that
   //      would make this whole thing much easier.  :(
-  function changeDivisionWithNotes(newDivision, Stickings, HH, Tom1, Tom4, Snare, Kick, Tom2) {
+  // Kick2 is passed last and guarded separately, for the same reason Tom2 is:
+  // callers written before the lane existed omit it and must keep working.
+  function changeDivisionWithNotes(
+    newDivision,
+    Stickings,
+    HH,
+    Tom1,
+    Tom4,
+    Snare,
+    Kick,
+    Tom2,
+    Kick2
+  ) {
     var oldDivision = class_time_division;
     var wasStickingsVisable = isStickingsVisible();
     var wasTomsVisable = isTomsVisible();
+    var wasDoublePedalVisable = isDoublePedalVisible();
 
     class_time_division = newDivision;
     class_notes_per_measure = root.myGrooveUtils.calc_notes_per_measure(
@@ -3685,6 +3808,7 @@ function GrooveWriter() {
     if (wasStickingsVisable) root.stickingsShowHide(true, true, true);
 
     if (wasTomsVisable) root.showHideToms(true, true, true);
+    if (wasDoublePedalVisable) root.showHideDoublePedal(true, true, true);
 
     // now set the right notes on and off
     if (Stickings && HH && Tom1 && Tom4 && Snare && Kick) {
@@ -3697,6 +3821,7 @@ function GrooveWriter() {
       if (Tom2) setNotesFromURLData('T2', Tom2, class_number_of_measures);
       setNotesFromURLData('S', Snare, class_number_of_measures);
       setNotesFromURLData('K', Kick, class_number_of_measures);
+      if (Kick2) setNotesFromURLData('K2', Kick2, class_number_of_measures);
     }
 
     // un-highlight the old div
@@ -3743,6 +3868,7 @@ function GrooveWriter() {
     var uiTom4 = '|';
     var uiSnare = '|';
     var uiKick = '|';
+    var uiKick2 = '|';
 
     if (newDivision == 48 && !have_shown_mixed_division_message) {
       have_shown_mixed_division_message = true;
@@ -3794,6 +3920,7 @@ function GrooveWriter() {
         uiTom4 += get_tom_state(i, 4, 'URL');
         uiSnare += get_snare_state(i, 'URL');
         uiKick += get_kick_state(i, 'URL');
+        uiKick2 += get_kick2_state(i, 'URL');
       }
 
       // override the hi-hat if we are going to a higher division.
@@ -3854,7 +3981,8 @@ function GrooveWriter() {
       uiTom4,
       uiSnare,
       uiKick,
-      uiTom2
+      uiTom2,
+      uiKick2
     );
 
     updateSheetMusic();

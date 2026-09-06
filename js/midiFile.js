@@ -16,6 +16,7 @@ import {
   constant_ABC_HH_Ride_Bell,
   constant_ABC_HH_Stacker,
   constant_ABC_KI_Normal,
+  constant_ABC_KI2_Normal,
   constant_ABC_KI_SandK,
   constant_ABC_KI_Splash,
   constant_ABC_SN_Accent,
@@ -42,6 +43,7 @@ import {
   constant_OUR_MIDI_HIHAT_RIDE_BELL,
   constant_OUR_MIDI_HIHAT_STACKER,
   constant_OUR_MIDI_KICK_NORMAL,
+  constant_OUR_MIDI_KICK2_NORMAL,
   constant_OUR_MIDI_METRONOME_1,
   constant_OUR_MIDI_METRONOME_NORMAL,
   constant_OUR_MIDI_SNARE_ACCENT,
@@ -110,7 +112,9 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
   num_notes_for_swing,
   swing_percentage,
   timeSigTop,
-  timeSigBottom
+  timeSigBottom,
+  // Last and optional, so the existing positional callers are untouched.
+  Kick2_Array
 ) {
   var prev_hh_note = 46; // default to open hi-hat so that the first hi-hat note also mutes any previous hh open.
   var midi_channel = 9; // percussion
@@ -386,6 +390,15 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
           console.log('Bad case in GrooveUtils.MIDI_from_HH_Snare_Kick_Arrays');
           break;
       }
+      // The left foot's own bass drum note, on its own MIDI pitch so the two
+      // feet are distinguishable by ear. A real double pedal sounds like one
+      // drum; this is a practice tool, and you cannot check your alternation
+      // against a sound that does not tell you which foot played.
+      var kick2_note =
+        Kick2_Array && Kick2_Array[i] === constant_ABC_KI2_Normal
+          ? constant_OUR_MIDI_KICK2_NORMAL
+          : false;
+
       if (kick_note !== false) {
         //if(prev_kick_note != false)
         //	midiTrack.addNoteOff(midi_channel, prev_kick_note, 0);
@@ -397,6 +410,16 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
         );
         delay_for_next_note = 0; // zero the delay
         //prev_kick_note = kick_note;
+      }
+
+      if (kick2_note !== false) {
+        midiTrack.addNoteOn(
+          midi_channel,
+          kick2_note,
+          delay_for_next_note,
+          constant_OUR_MIDI_VELOCITY_NORMAL
+        );
+        delay_for_next_note = 0; // zero the delay
       }
       if (kick_splash_note !== false) {
         if (prev_hh_note !== false) {
@@ -501,6 +524,14 @@ export function create_MIDIURLFromGrooveData(gu, myGrooveData, MIDI_type) {
     myGrooveData.noteValue
   );
 
+  var FullNoteKick2Array = scaleNoteArrayToFullSize(
+    myGrooveData.kick2_array,
+    myGrooveData.numberOfMeasures,
+    myGrooveData.notesPerMeasure,
+    myGrooveData.numBeats,
+    myGrooveData.noteValue
+  );
+
   // the midi functions expect just one measure at a time to work correctly
   // call once for each measure
   var measure_notes = FullNoteHHArray.length / myGrooveData.numberOfMeasures;
@@ -532,7 +563,8 @@ export function create_MIDIURLFromGrooveData(gu, myGrooveData, MIDI_type) {
       myGrooveData.timeDivision,
       swing_percentage,
       myGrooveData.numBeats,
-      myGrooveData.noteValue
+      myGrooveData.noteValue,
+      FullNoteKick2Array.slice(measure_notes * measureIndex, measure_notes * (measureIndex + 1))
     );
   }
 

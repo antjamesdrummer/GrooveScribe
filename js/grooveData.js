@@ -62,8 +62,10 @@ const EMPTY_NOTE_ARRAY = [
  * @property {Array<string|boolean>} hh_array      Hi-hat / cymbal lane; each slot is an ABC token or false.
  * @property {Array<string|boolean>} snare_array   Snare lane; each slot is an ABC token or false.
  * @property {Array<string|boolean>} kick_array    Kick lane; each slot is an ABC token or false.
+ * @property {Array<string|boolean>} kick2_array   Left-foot bass drum lane (double pedal); each slot is an ABC token or false.
  * @property {Array<Array<string|boolean>>} toms_array  Four tom lanes (T1–T4), index 0-based.
  * @property {boolean} showToms        Whether the tom lanes are displayed.
+ * @property {boolean} showDoublePedal Whether the left-foot bass drum lane is displayed.
  * @property {boolean} showStickings   Whether the sticking lane is displayed.
  * @property {string} title            Groove title.
  * @property {string} author           Groove author.
@@ -98,6 +100,7 @@ export function createGrooveData(config = {}) {
     hh_array: EMPTY_NOTE_ARRAY.slice(0), // copy by value
     snare_array: EMPTY_NOTE_ARRAY.slice(0), // copy by value
     kick_array: EMPTY_NOTE_ARRAY.slice(0), // copy by value
+    kick2_array: EMPTY_NOTE_ARRAY.slice(0), // copy by value
     // toms_array contains 4 toms  T1, T2, T3, T4 index starting at zero
     toms_array: [
       EMPTY_NOTE_ARRAY.slice(0),
@@ -106,6 +109,9 @@ export function createGrooveData(config = {}) {
       EMPTY_NOTE_ARRAY.slice(0),
     ],
     showToms: false,
+    // Off by default: most drummers have one pedal, and a lane nobody uses is
+    // a row of empty boxes between them and the groove.
+    showDoublePedal: false,
     showStickings: false,
     title: '',
     author: '',

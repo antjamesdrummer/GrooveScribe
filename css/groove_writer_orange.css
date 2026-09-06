@@ -1382,3 +1382,67 @@ input[type='checkbox']:not(:checked) + label {
     width: 100% !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Left foot on the bass drum (double pedal)
+ *
+ * Hidden until the DOUBLE PEDAL button turns it on, and collapsed out of the
+ * layout rather than merely invisible — the same treatment the toms get, so an
+ * unused row costs no vertical space rather than leaving an empty band under
+ * the kick.
+ * ------------------------------------------------------------------------ */
+/*
+ * Named for the limb, not the drum. "Kick 2" would suggest a second bass drum
+ * on the kit; a double pedal is one drum played by two feet, and the row is
+ * about which foot rather than which drum.
+ */
+.kick2-label {
+  display: none;
+  margin-top: 6px;
+  margin-left: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.kick2-label:hover {
+  color: #2484c0;
+}
+
+.kick2-container {
+  display: none;
+  border: 1px solid transparent;
+  height: 34px;
+  white-space: nowrap;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.kick2 {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 34px;
+  vertical-align: top;
+}
+
+.kick2_circle {
+  position: absolute;
+  top: 4px;
+  left: 2px;
+  height: 22px;
+  width: 22px;
+  background: #fff;
+  border: 2px solid #999;
+  border-radius: 40px 40px 40px 40px;
+  cursor: pointer;
+}
+
+/*
+ * The splash is the left foot as well, and with a double pedal that foot is on
+ * the bass drum. Hidden rather than removed: whatever was written stays in the
+ * groove and comes back when the pedal is switched off.
+ */
+#musicalInput.hideKickSplash .kick_splash {
+  display: none;
+}
