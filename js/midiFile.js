@@ -4,6 +4,8 @@
 // Uses the jsmidgen `Midi` window global (provided by the vendored classic script).
 
 import {
+  constant_ABC_CY_China,
+  constant_ABC_CY_Splash,
   constant_ABC_HH_Accent,
   constant_ABC_HH_Close,
   constant_ABC_HH_Cow_Bell,
@@ -32,6 +34,9 @@ import {
   constant_ABC_T4_Normal,
   constant_NUMBER_OF_TOMS,
   constant_OUR_MIDI_HIHAT_ACCENT,
+  constant_OUR_MIDI_CYMBAL_CHINA,
+  constant_OUR_MIDI_CYMBAL_SPLASH,
+  constant_OUR_MIDI_CYMBAL_SPLASH_SOUND,
   constant_OUR_MIDI_HIHAT_COW_BELL,
   constant_OUR_MIDI_HIHAT_CRASH,
   constant_OUR_MIDI_HIHAT_FOOT,
@@ -61,6 +66,7 @@ import {
   constant_OUR_MIDI_VELOCITY_ACCENT,
   constant_OUR_MIDI_VELOCITY_GHOST,
   constant_OUR_MIDI_VELOCITY_NORMAL,
+  constant_OUR_MIDI_VELOCITY_SPLASH,
 } from './constants.js';
 import { isTripletDivisionFromNotesPerMeasure, scaleNoteArrayToFullSize } from './musicMath.js';
 
@@ -115,7 +121,8 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
   timeSigTop,
   timeSigBottom,
   // Last and optional, so the existing positional callers are untouched.
-  Kick2_Array
+  Kick2_Array,
+  Cymbal_Array
 ) {
   var prev_hh_note = 46; // default to open hi-hat so that the first hi-hat note also mutes any previous hh open.
   var midi_channel = 9; // percussion
@@ -308,6 +315,39 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
 
         // this if means that only the open hi-hat will get stopped on the next note
         if (HH_Array[i] == constant_ABC_HH_Open) prev_hh_note = hh_note;
+      }
+
+      // The auxiliary cymbal lane. Its own lane rather than another hi-hat
+      // articulation, so a splash can land while the hi-hat keeps going —
+      // which is the whole reason the lane exists, and it has to be true of
+      // the sound as well as the notation.
+      //
+      // The two output types disagree on purpose. A downloaded file is read by
+      // other software, which has its own sounds and wants General MIDI's own
+      // notes. Playback is read by a drummer, and General MIDI's splash is an
+      // empty entry in the vendored soundfont — correct and inaudible. So the
+      // download gets 55 and the browser gets the crash sample, quieter.
+      var cymbal_velocity = constant_OUR_MIDI_VELOCITY_NORMAL;
+      var cymbal_note = false;
+      switch (Cymbal_Array && Cymbal_Array[i]) {
+        case constant_ABC_CY_China:
+          cymbal_note = constant_OUR_MIDI_CYMBAL_CHINA;
+          break;
+        case constant_ABC_CY_Splash:
+          if (midi_output_type == 'general_MIDI') {
+            cymbal_note = constant_OUR_MIDI_CYMBAL_SPLASH;
+          } else {
+            cymbal_note = constant_OUR_MIDI_CYMBAL_SPLASH_SOUND;
+            cymbal_velocity = constant_OUR_MIDI_VELOCITY_SPLASH;
+          }
+          break;
+        default:
+          break;
+      }
+
+      if (cymbal_note !== false) {
+        midiTrack.addNoteOn(midi_channel, cymbal_note, delay_for_next_note, cymbal_velocity);
+        delay_for_next_note = 0; // zero the delay
       }
 
       var snare_velocity = constant_OUR_MIDI_VELOCITY_NORMAL;
@@ -529,6 +569,14 @@ export function create_MIDIURLFromGrooveData(gu, myGrooveData, MIDI_type) {
     myGrooveData.noteValue
   );
 
+  var FullNoteCymbalArray = scaleNoteArrayToFullSize(
+    myGrooveData.cymbal_array,
+    myGrooveData.numberOfMeasures,
+    myGrooveData.notesPerMeasure,
+    myGrooveData.numBeats,
+    myGrooveData.noteValue
+  );
+
   var FullNoteKick2Array = scaleNoteArrayToFullSize(
     myGrooveData.kick2_array,
     myGrooveData.numberOfMeasures,
@@ -569,7 +617,8 @@ export function create_MIDIURLFromGrooveData(gu, myGrooveData, MIDI_type) {
       swing_percentage,
       myGrooveData.numBeats,
       myGrooveData.noteValue,
-      FullNoteKick2Array.slice(measure_notes * measureIndex, measure_notes * (measureIndex + 1))
+      FullNoteKick2Array.slice(measure_notes * measureIndex, measure_notes * (measureIndex + 1)),
+      FullNoteCymbalArray.slice(measure_notes * measureIndex, measure_notes * (measureIndex + 1))
     );
   }
 

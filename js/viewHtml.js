@@ -87,6 +87,11 @@ export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
     '\
 							<span class="notes-row-container">\
 								<div class="line-labels">\
+									<div class="cymbal-label" onClick="myGrooveWriter.noteLabelClick(event, \'cymbal\', ' +
+    baseindex +
+    ')" oncontextmenu="event.preventDefault(); myGrooveWriter.noteLabelClick(event, \'cymbal\', ' +
+    baseindex +
+    ')">Cymbals</div>\
 									<div class="hh-label" onClick="myGrooveWriter.noteLabelClick(event, \'hh\', ' +
     baseindex +
     ')" oncontextmenu="event.preventDefault(); myGrooveWriter.noteLabelClick(event, \'hh\', ' +
@@ -152,6 +157,53 @@ export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
       newHTML += '<div class="space_between_note_groups"> </div> \n';
     }
   }
+  newHTML += '<div class="end_note_space"></div>\n</div>\n';
+
+  // Auxiliary cymbals: a china or a splash, on their own row.
+  //
+  // Above the hi-hat, because that is where they sit on the stave and the row
+  // order should read the way the notation does. Its own lane rather than two
+  // more articulations in the hi-hat row: the point of writing a splash is
+  // that it lands while the hands are already keeping time on something else,
+  // and one lane holds one note per step.
+  newHTML +=
+    '\
+										<div class="cymbal-container" id="cymbal-container">\
+											<div class="opening_note_space"> </div>';
+  for (var c = indexStartForNotes; c < ctx.notesPerMeasure + indexStartForNotes; c++) {
+    newHTML +=
+      '\
+														<div id="cymbal-' +
+      c +
+      '" class="cymbal" onClick="myGrooveWriter.noteLeftClick(event, \'cymbal\', ' +
+      c +
+      ')" oncontextmenu="event.preventDefault(); myGrooveWriter.noteRightClick(event, \'cymbal\', ' +
+      c +
+      ')" onmouseenter="myGrooveWriter.noteOnMouseEnter(event, \'cymbal\', ' +
+      c +
+      ')">\
+															<div class="cymbal_china note_part" id="cymbal_china' +
+      c +
+      '"><i class="fa fa-times-circle-o"></i></div>\
+															<div class="cymbal_splash note_part" id="cymbal_splash' +
+      c +
+      '"><i class="fa fa-asterisk"></i></div>\
+														</div>\n\
+													';
+
+    if (
+      (c - (indexStartForNotes - 1)) % ctx.noteGrouping === 0 &&
+      c < ctx.notesPerMeasure + indexStartForNotes - 1
+    ) {
+      newHTML += '<div class="space_between_note_groups"> </div> \n';
+    }
+  }
+  newHTML +=
+    '<div class="unmuteCymbalButton" id="unmutecymbalButton' +
+    baseindex +
+    '" onClick=\'myGrooveWriter.muteInstrument("cymbal", ' +
+    baseindex +
+    ', false)\'><span class="fa-stack unmuteHHStack"><i class="fa fa-ban fa-stack-2x" style="color:red"></i><i class="fa fa-volume-down fa-stack-1x"></i></div>';
   newHTML += '<div class="end_note_space"></div>\n</div>\n';
 
   // Hi-hats

@@ -982,3 +982,71 @@ input[type='checkbox']:not(:checked) + label {
 #musicalInput.hideKickSplash .kick_splash {
   display: none;
 }
+
+/* ---------------------------------------------------------------------------
+ * Auxiliary cymbals (china / splash)
+ *
+ * Hidden until the CYMBALS button turns it on, and collapsed out of the layout
+ * rather than merely invisible — the same treatment the toms and the left foot
+ * get, so an unused row costs no vertical space.
+ *
+ * Sized to match the hi-hat row exactly: 29px plus a 1px transparent border
+ * and 2px each side. The left-foot row shipped 26px wide with no margins and
+ * drifted further out of true with every step across the bar; there is no
+ * reason to learn that twice.
+ * ------------------------------------------------------------------------ */
+.cymbal-label {
+  display: none;
+  margin-top: 6px;
+  margin-left: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.cymbal-label:hover {
+  color: #2484c0;
+}
+
+.cymbal-container {
+  display: none;
+  border: 1px solid transparent;
+  height: 30px;
+  white-space: nowrap;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.cymbal {
+  display: inline-block;
+  position: relative;
+  border: 1px solid;
+  border-color: transparent;
+  width: 29px;
+  height: 100%;
+  margin-right: 2px;
+  margin-left: 2px;
+}
+
+/*
+ * Both glyphs sit in the same place in the cell, because only one of them can
+ * be on at a time — the lane holds one cymbal per step. The splash is drawn
+ * smaller than the china for the obvious reason.
+ */
+.cymbal_china {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-size: 23px;
+  color: transparent;
+  cursor: pointer;
+}
+
+.cymbal_splash {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 18px;
+  color: transparent;
+  cursor: pointer;
+}

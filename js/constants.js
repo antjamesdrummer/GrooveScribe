@@ -20,6 +20,34 @@ export const constant_ABC_HH_Open = '!open!^g';
 export const constant_ABC_HH_Close = '!plus!^g';
 export const constant_ABC_HH_Accent = '!accent!^g';
 export const constant_ABC_HH_Normal = '^g';
+
+/**
+ * The auxiliary cymbal lane: a china and a splash, on their own row.
+ *
+ * They are NOT more characters in the hi-hat lane, which already carries the
+ * crash, the ride and the rest. That lane holds one cymbal per step, and the
+ * whole reason to write a splash is that it lands while the hands are already
+ * keeping time on something else. Two voices at one step needs two lanes.
+ *
+ * Both are DRAWN in the same place — B natural above the stave, the free space
+ * between the ride's ledger line and the crash's — and told apart by the
+ * notehead, the way the cowbell is already told apart from the hi-hat it
+ * shares a position with. They are one lane, so only one of them can be on a
+ * given step and the two can never collide.
+ *
+ * Stacking them at different heights was tried first and is worse. Only one
+ * clean position is free: everything from the crash upwards is taken by the
+ * crash, the stacker and the two metronome rows, so the second cymbal landed
+ * at g' with four ledger lines under it — and the mark distinguishing a china
+ * from a crash then sat at the same height as a ledger line, which is the one
+ * thing a mark on a stave must not do.
+ *
+ * The tokens keep their own pitches because the pitch is the identity ABC
+ * matches on; `print=` is what decides where it is drawn. See the %%map lines
+ * in abcNotation.js.
+ */
+export const constant_ABC_CY_China = "^g'";
+export const constant_ABC_CY_Splash = '^b';
 export const constant_ABC_SN_Ghost = '!(.!!).!c';
 export const constant_ABC_SN_Accent = '!accent!c';
 export const constant_ABC_SN_Normal = 'c';
@@ -61,6 +89,35 @@ export const constant_OUR_MIDI_HIHAT_METRONOME_ACCENT = 76;
 export const constant_OUR_MIDI_HIHAT_RIDE = 51;
 export const constant_OUR_MIDI_HIHAT_RIDE_BELL = 53;
 export const constant_OUR_MIDI_HIHAT_COW_BELL = 105;
+/**
+ * General MIDI's Chinese Cymbal, and the one lucky coincidence in this file:
+ * 52 is both china's correct General MIDI note AND a note the vendored
+ * soundfont actually has a sample for — it is the one the stacker plays. A
+ * stack and a china are both trashy and short, so the sound is close enough to
+ * be useful and the exported file is correct outright.
+ */
+export const constant_OUR_MIDI_CYMBAL_CHINA = 52;
+/**
+ * General MIDI's Splash Cymbal, used in the DOWNLOADED file only.
+ *
+ * soundfont/gunshot-ogg.js has `"G3": ""` for it — an entry with no sample —
+ * so playing it in the browser would be silence, the same trap the left-foot
+ * bass drum fell into. The download is read by other software, which has its
+ * own sounds and wants the right note; playback is read by a drummer, who
+ * wants to hear something. They get different notes for that reason.
+ */
+export const constant_OUR_MIDI_CYMBAL_SPLASH = 55;
+/**
+ * What a splash plays in the browser: the crash sample, noticeably quieter.
+ *
+ * A splash IS a small crash — same gesture, same attack, less of it — so
+ * level is the honest way to stand one in for the other with the samples
+ * available. Declared here rather than buried in midiFile.js so the
+ * substitution is visible next to the note it substitutes for.
+ */
+export const constant_OUR_MIDI_CYMBAL_SPLASH_SOUND = 49;
+/** Clearly lighter than a crash, nowhere near a ghost note. */
+export const constant_OUR_MIDI_VELOCITY_SPLASH = 70;
 export const constant_OUR_MIDI_HIHAT_FOOT = 44;
 export const constant_OUR_MIDI_SNARE_NORMAL = 38;
 export const constant_OUR_MIDI_SNARE_ACCENT = 22;

@@ -3,6 +3,8 @@
 // grooves, and note-mapping/sticking-count helpers. GrooveUtils delegates here.
 
 import {
+  constant_ABC_CY_China,
+  constant_ABC_CY_Splash,
   constant_ABC_HH_Accent,
   constant_ABC_HH_Close,
   constant_ABC_HH_Cow_Bell,
@@ -50,6 +52,7 @@ function tablatureToABCNotationPerNote(drumType, tablatureChar) {
     case 'c':
       if (drumType == 'Stickings') return constant_ABC_STICK_COUNT;
       else if (drumType == 'H') return constant_ABC_HH_Crash;
+      else if (drumType == 'C') return constant_ABC_CY_China;
       break;
     case 'd':
       if (drumType == 'S') return constant_ABC_SN_Drag;
@@ -122,6 +125,7 @@ function tablatureToABCNotationPerNote(drumType, tablatureChar) {
       break;
     case 's':
       if (drumType == 'H') return constant_ABC_HH_Stacker;
+      else if (drumType == 'C') return constant_ABC_CY_Splash;
       break;
     case 'x':
       switch (drumType) {
@@ -214,6 +218,12 @@ function abcNotationToTablaturePerNote(drumType, abcChar) {
       break;
     case constant_ABC_HH_Stacker:
       tabChar = 's';
+      break;
+    case constant_ABC_CY_Splash:
+      tabChar = 's';
+      break;
+    case constant_ABC_CY_China:
+      tabChar = 'c';
       break;
     case constant_ABC_HH_Metronome_Normal:
       tabChar = 'n';
@@ -465,7 +475,10 @@ export function create_note_mapping_array_for_highlighting(
   // ONLY the left foot plays is still a slot the playhead has to stop on —
   // leaving it out would skip those notes, and on a double-pedal exercise that
   // is most of them.
-  kick2_array
+  kick2_array,
+  // Same again for the auxiliary cymbals: a bar whose only note off the
+  // hi-hat is a china still has to be highlighted on it.
+  cymbal_array
 ) {
   var mapping_array = new Array(num_notes); // create large empty array
 
@@ -474,7 +487,8 @@ export function create_note_mapping_array_for_highlighting(
       (HH_array && HH_array[i] !== false) ||
       (snare_array && snare_array[i] !== false) ||
       (kick_array && kick_array[i] !== false) ||
-      (kick2_array && kick2_array[i] !== false)
+      (kick2_array && kick2_array[i] !== false) ||
+      (cymbal_array && cymbal_array[i] !== false)
     ) {
       mapping_array[i] = true;
     } else {

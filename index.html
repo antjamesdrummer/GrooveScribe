@@ -141,6 +141,7 @@
 					<span class="pageBottomButton edit-block" id="clearAllNotesButton" onclick="event.preventDefault(); myGrooveWriter.clearAllNotes();"><span class="bottomButtonIcon"><i class="fa fa-trash fa-2x"></i></span><span class="bottomButtonLabel">CLEAR ALL</span></span>
 					<span class="pageBottomButton edit-block" id="showHideTomsButton" onclick="event.preventDefault(); myGrooveWriter.showHideToms(false, false);"><span class="bottomButtonIcon"><i id="icon-tom1" class="fa fa-circle"></i><i id="icon-tom2" class="fa fa-circle-o"></i><i id="icon-tom3" class="fa fa-circle-o"></i></span><span class="bottomButtonLabel">TOMS</span></span>
 					<span class="pageBottomButton edit-block" id="showHideDoublePedalButton" onclick="event.preventDefault(); myGrooveWriter.showHideDoublePedal(false, false);"><span class="bottomButtonIcon"><i class="fa fa-circle"></i><i class="fa fa-circle"></i></span><span class="bottomButtonLabel">DOUBLE PEDAL</span></span>
+					<span class="pageBottomButton edit-block" id="showHideCymbalsButton" onclick="event.preventDefault(); myGrooveWriter.showHideCymbals(false, false);"><span class="bottomButtonIcon"><i class="fa fa-times-circle-o"></i><i class="fa fa-asterisk"></i></span><span class="bottomButtonLabel">CYMBALS</span></span>
 					<span class=" grooveDB_hidden pageBottomButton" id="stickingsButton" onclick="myGrooveWriter.stickingsAnchorClick();"><span class="bottomButtonLabel">STICKINGS</span></span>
 					<span class=" grooveDB_hidden pageBottomButton" id="downloadButton" onclick="myGrooveWriter.DownloadAnchorClick();"><span class="bottomButtonIcon"><i class="fa fa-download fa-2x"></i></span><span class="bottomButtonLabel">DOWNLOAD</span></span>
 					<span class=" grooveDB_hidden pageBottomButton" id="printButton" onclick="myGrooveWriter.printMusic();"><span class="bottomButtonIcon"><i class="fa fa-print fa-2x"></i></span><span class="bottomButtonLabel">PRINT</span></span>
@@ -238,6 +239,13 @@
 			</ul>
 		</div>
 		<div class="noteContextMenu">
+			<ul id="cymbalContextMenu" class="list">
+				<li onclick='myGrooveWriter.notePopupClick("cymbal", "off");'>Off</li>
+				<li onclick='myGrooveWriter.notePopupClick("cymbal","splash");'>Splash</li>
+				<li onclick='myGrooveWriter.notePopupClick("cymbal","china");'>China</li>
+			</ul>
+		</div>
+		<div class="noteContextMenu">
 			<ul id="hhContextMenu" class="list">
 				<li onclick='myGrooveWriter.notePopupClick("hh", "off");'>Off</li>
 				<li onclick='myGrooveWriter.notePopupClick("hh","normal");'>Hi-hat normal</li>
@@ -298,6 +306,13 @@
 				<li onclick='myGrooveWriter.noteLabelPopupClick("stickings", "all_left");'>all <b>L</b>s</li>
 				<li onclick='myGrooveWriter.noteLabelPopupClick("stickings", "all_count");'><b>C</b>ounts</li>
 				<li onclick='myGrooveWriter.noteLabelPopupClick("stickings", "cancel");'>cancel</li>
+			</ul>
+		</div>
+		<div class="noteContextMenu">
+			<ul id="cymbalLabelContextMenu" class="list">
+				<li onclick='myGrooveWriter.noteLabelPopupClick("cymbal", "all_off");'>all Cymbals <b>Off</b></li>
+				<li id='mute_cymbal_menu_item' onclick='myGrooveWriter.noteLabelPopupClick("cymbal", "mute");'>mute cymbal sound</li>
+				<li onclick='myGrooveWriter.noteLabelPopupClick("cymbal", "cancel");'>cancel</li>
 			</ul>
 		</div>
 		<div class="noteContextMenu">

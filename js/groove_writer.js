@@ -26,6 +26,8 @@
 // provided by the classic <script> tags loaded before this module.
 import { GrooveUtils } from './groove_utils.js';
 import {
+  constant_ABC_CY_China,
+  constant_ABC_CY_Splash,
   constant_ABC_HH_Accent,
   constant_ABC_HH_Close,
   constant_ABC_HH_Cow_Bell,
@@ -57,6 +59,8 @@ import {
   constant_ABC_T2_Normal,
   constant_ABC_T4_Normal,
   constant_OUR_MIDI_HIHAT_ACCENT,
+  constant_OUR_MIDI_CYMBAL_CHINA,
+  constant_OUR_MIDI_CYMBAL_SPLASH_SOUND,
   constant_OUR_MIDI_HIHAT_COW_BELL,
   constant_OUR_MIDI_HIHAT_CRASH,
   constant_OUR_MIDI_HIHAT_FOOT,
@@ -230,6 +234,9 @@ function GrooveWriter() {
   }
   function get_kick2_state(id, returnType) {
     return _grid.get_kick2_state(id, returnType);
+  }
+  function get_cymbal_state(id, returnType) {
+    return _grid.get_cymbal_state(id, returnType);
   }
   function is_hh_on(id) {
     return _grid.is_hh_on(id);
@@ -447,6 +454,58 @@ function GrooveWriter() {
         console.log('bad switch in set_snare_state');
         break;
     }
+  }
+
+  /**
+   * The auxiliary cymbal lane: china, splash or nothing.
+   *
+   * "Off" leaves the splash glyph showing in the faint off colour rather than
+   * nothing at all, exactly as the hi-hat row leaves its cross — an empty
+   * 32-slot row with no targets in it is hard to aim at and harder to read as
+   * clickable.
+   */
+  function set_cymbal_state(id, mode, make_sound) {
+    var china = document.getElementById('cymbal_china' + id);
+    var splash = document.getElementById('cymbal_splash' + id);
+    if (!china || !splash) return;
+
+    china.style.color = constant_note_hidden_color_rgb;
+    splash.style.color = constant_note_hidden_color_rgb;
+
+    switch (mode) {
+      case 'off':
+        splash.style.color = constant_hihat_note_off_color_hex;
+        break;
+      case 'china':
+        china.style.color = constant_note_on_color_hex;
+        if (make_sound) play_single_note_for_note_setting(constant_OUR_MIDI_CYMBAL_CHINA);
+        break;
+      case 'splash':
+        splash.style.color = constant_note_on_color_hex;
+        // The crash sample, which is what a splash plays here — see
+        // constant_OUR_MIDI_CYMBAL_SPLASH_SOUND for why it is not note 55.
+        if (make_sound) play_single_note_for_note_setting(constant_OUR_MIDI_CYMBAL_SPLASH_SOUND);
+        break;
+      default:
+        console.log('bad switch in set_cymbal_state');
+        break;
+    }
+  }
+
+  /**
+   * A left click cycles off → splash → china → off.
+   *
+   * Every other note row toggles, because every other row has one obvious
+   * default state. This one has two articulations and no default, so it
+   * rotates the way the sticking row does. Splash comes first because it is
+   * the commoner of the two in a groove.
+   */
+  function cymbal_rotate_state(id) {
+    var state = get_cymbal_state(id, 'ABC');
+
+    if (state === false) set_cymbal_state(id, 'splash', true);
+    else if (state == constant_ABC_CY_Splash) set_cymbal_state(id, 'china', true);
+    else set_cymbal_state(id, 'off', true);
   }
 
   // returns the ABC notation for the HH state
@@ -1143,6 +1202,9 @@ function GrooveWriter() {
       case 'stickings':
         contextMenu = document.getElementById('stickingsLabelContextMenu');
         break;
+      case 'cymbal':
+        contextMenu = document.getElementById('cymbalLabelContextMenu');
+        break;
       case 'hh':
         contextMenu = document.getElementById('hhLabelContextMenu');
         break;
@@ -1184,6 +1246,9 @@ function GrooveWriter() {
     switch (instrument) {
       case 'stickings':
         setFunction = set_sticking_state;
+        break;
+      case 'cymbal':
+        setFunction = set_cymbal_state;
         break;
       case 'hh':
         setFunction = set_hh_state;
@@ -1312,6 +1377,9 @@ function GrooveWriter() {
       case 'sticking':
         contextMenu = document.getElementById('stickingContextMenu');
         break;
+      case 'cymbal':
+        contextMenu = document.getElementById('cymbalContextMenu');
+        break;
       case 'hh':
         contextMenu = document.getElementById('hhContextMenu');
         break;
@@ -1356,6 +1424,9 @@ function GrooveWriter() {
     } else {
       // this is a non advanced edit left click
       switch (type) {
+        case 'cymbal':
+          cymbal_rotate_state(id);
+          break;
         case 'hh':
           set_hh_state(id, is_hh_on(id) ? 'off' : 'normal', true);
           break;
@@ -1396,6 +1467,9 @@ function GrooveWriter() {
       case 'sticking':
         set_sticking_state(id, new_setting, true);
         break;
+      case 'cymbal':
+        set_cymbal_state(id, new_setting, true);
+        break;
       case 'hh':
         set_hh_state(id, new_setting, true);
         break;
@@ -1435,6 +1509,9 @@ function GrooveWriter() {
 
     if (action) {
       switch (instrument) {
+        case 'cymbal':
+          set_cymbal_state(id, action == 'off' ? 'off' : 'splash', true);
+          break;
         case 'hh':
           set_hh_state(id, action == 'off' ? 'off' : 'normal', true);
           break;
@@ -1692,7 +1769,8 @@ function GrooveWriter() {
     Kick_Array,
     Toms_Array,
     startIndexForClickableUI,
-    Kick2_Array
+    Kick2_Array,
+    Cymbal_Array
   ) {
     return _grid.get32NoteArrayFromClickableUI(
       Sticking_Array,
@@ -1708,20 +1786,27 @@ function GrooveWriter() {
         stickingsVisible: isStickingsVisible(),
         tomsVisible: isTomsVisible(),
         doublePedalVisible: isDoublePedalVisible(),
+        cymbalsVisible: isCymbalsVisible(),
       },
-      Kick2_Array
+      Kick2_Array,
+      Cymbal_Array
     );
   }
 
   // each of the instruments can be muted.   Check the UI and zero out the array if the instrument is marked as muted
   // for a particular measure
+  // isInstrumentMuted is injected here rather than passed by the caller; the
+  // two note arrays after it are the lanes added since, and they are forwarded
+  // so that muting one of those rows actually silences it.
   function muteArrayFromClickableUI(
     Sticking_Array,
     HH_Array,
     Snare_Array,
     Kick_Array,
     Toms_Array,
-    measureIndex
+    measureIndex,
+    Kick2_Array,
+    Cymbal_Array
   ) {
     return _grid.muteArrayFromClickableUI(
       Sticking_Array,
@@ -1730,7 +1815,9 @@ function GrooveWriter() {
       Kick_Array,
       Toms_Array,
       measureIndex,
-      isInstrumentMuted
+      isInstrumentMuted,
+      Kick2_Array,
+      Cymbal_Array
     );
   }
 
@@ -1740,6 +1827,7 @@ function GrooveWriter() {
     var Snare_Array = get_empty_note_array_in_32nds();
     var Kick_Array = get_empty_note_array_in_32nds();
     var Kick2_Array = get_empty_note_array_in_32nds();
+    var Cymbal_Array = get_empty_note_array_in_32nds();
     var Toms_Array = [
       get_empty_note_array_in_32nds(),
       get_empty_note_array_in_32nds(),
@@ -1761,9 +1849,19 @@ function GrooveWriter() {
       Kick_Array,
       Toms_Array,
       0,
-      Kick2_Array
+      Kick2_Array,
+      Cymbal_Array
     );
-    muteArrayFromClickableUI(Sticking_Array, HH_Array, Snare_Array, Kick_Array, Toms_Array, 0);
+    muteArrayFromClickableUI(
+      Sticking_Array,
+      HH_Array,
+      Snare_Array,
+      Kick_Array,
+      Toms_Array,
+      0,
+      Kick2_Array,
+      Cymbal_Array
+    );
 
     var midiFile = new Midi.File();
     var midiTrack = new Midi.Track();
@@ -1946,6 +2044,7 @@ function GrooveWriter() {
     myGrooveData.showStickings = isStickingsVisible();
     myGrooveData.showToms = isTomsVisible();
     myGrooveData.showDoublePedal = isDoublePedalVisible();
+    myGrooveData.showCymbals = isCymbalsVisible();
     myGrooveData.title = document.getElementById('tuneTitle').value;
     myGrooveData.author = document.getElementById('tuneAuthor').value;
     myGrooveData.comments = document.getElementById('tuneComments').value;
@@ -1962,6 +2061,7 @@ function GrooveWriter() {
       myGrooveData.snare_array = [];
       myGrooveData.kick_array = [];
       myGrooveData.kick2_array = [];
+      myGrooveData.cymbal_array = [];
       myGrooveData.toms_array = [[], [], [], []];
 
       // query the clickable UI and generate a arrays representing the notes of all measures
@@ -1976,6 +2076,9 @@ function GrooveWriter() {
         // the same length as every other one — a short array silently
         // misaligns every note after the point it ran out.
         myGrooveData.kick2_array.push(isDoublePedalVisible() ? get_kick2_state(i, 'ABC') : false);
+        // Same rule as the lane above: pushed as false rather than skipped
+        // when hidden, so every lane stays the same length.
+        myGrooveData.cymbal_array.push(isCymbalsVisible() ? get_cymbal_state(i, 'ABC') : false);
 
         if (isTomsVisible()) {
           myGrooveData.toms_array[0].push(get_tom_state(i, 1, 'ABC'));
@@ -2255,6 +2358,7 @@ function GrooveWriter() {
     var Snare_Array = get_empty_note_array_in_32nds();
     var Kick_Array = get_empty_note_array_in_32nds();
     var Kick2_Array = get_empty_note_array_in_32nds();
+    var Cymbal_Array = get_empty_note_array_in_32nds();
     var Toms_Array = [
       get_empty_note_array_in_32nds(),
       get_empty_note_array_in_32nds(),
@@ -2270,7 +2374,8 @@ function GrooveWriter() {
       Kick_Array,
       Toms_Array,
       0,
-      Kick2_Array
+      Kick2_Array,
+      Cymbal_Array
     );
 
     // abc header boilerplate
@@ -2442,6 +2547,7 @@ function GrooveWriter() {
             Snare_Array = get_empty_note_array_in_32nds();
             Kick_Array = get_empty_note_array_in_32nds();
             Kick2_Array = get_empty_note_array_in_32nds();
+            Cymbal_Array = get_empty_note_array_in_32nds();
 
             get32NoteArrayFromClickableUI(
               Sticking_Array,
@@ -2450,7 +2556,8 @@ function GrooveWriter() {
               Kick_Array,
               Toms_Array,
               class_notes_per_measure * i,
-              Kick2_Array
+              Kick2_Array,
+              Cymbal_Array
             );
           }
 
@@ -2477,7 +2584,8 @@ function GrooveWriter() {
             true,
             class_num_beats_per_measure,
             class_note_value_per_measure,
-            Kick2_Array
+            Kick2_Array,
+            Cymbal_Array
           );
           root.myGrooveUtils.note_mapping_array = root.myGrooveUtils.note_mapping_array.concat(
             root.myGrooveUtils.create_note_mapping_array_for_highlighting(
@@ -2606,6 +2714,7 @@ function GrooveWriter() {
     var uiSnare = '';
     var uiKick = '';
     var uiKick2 = '';
+    var uiCymbal = '';
 
     // get the encoded notes out of the UI.
     // run through all the measure, but don't include the one that we are deleting
@@ -2624,6 +2733,7 @@ function GrooveWriter() {
         uiSnare += get_snare_state(i, 'URL');
         uiKick += get_kick_state(i, 'URL');
         uiKick2 += get_kick2_state(i, 'URL');
+        uiCymbal += get_cymbal_state(i, 'URL');
       }
     }
 
@@ -2640,7 +2750,8 @@ function GrooveWriter() {
       uiSnare,
       uiKick,
       uiTom2,
-      uiKick2
+      uiKick2,
+      uiCymbal
     );
 
     updateSheetMusic();
@@ -2658,6 +2769,7 @@ function GrooveWriter() {
     var uiSnare = '';
     var uiKick = '';
     var uiKick2 = '';
+    var uiCymbal = '';
     var i;
 
     // get the encoded notes out of the UI.
@@ -2671,6 +2783,7 @@ function GrooveWriter() {
       uiSnare += get_snare_state(i, 'URL');
       uiKick += get_kick_state(i, 'URL');
       uiKick2 += get_kick2_state(i, 'URL');
+      uiCymbal += get_cymbal_state(i, 'URL');
     }
 
     // run the the last measure twice to default in some notes
@@ -2683,6 +2796,7 @@ function GrooveWriter() {
       uiSnare += get_snare_state(i, 'URL');
       uiKick += get_kick_state(i, 'URL');
       uiKick2 += get_kick2_state(i, 'URL');
+      uiCymbal += get_cymbal_state(i, 'URL');
     }
 
     class_number_of_measures++;
@@ -2698,7 +2812,8 @@ function GrooveWriter() {
       uiSnare,
       uiKick,
       uiTom2,
-      uiKick2
+      uiKick2,
+      uiCymbal
     );
 
     // reference the button and scroll it into view
@@ -2758,15 +2873,24 @@ function GrooveWriter() {
   root.clearAllNotes = function () {
     for (var i = 0; i < class_number_of_measures * class_notes_per_measure; i++) {
       set_sticking_state(i, 'off');
+      set_cymbal_state(i, 'off');
       set_hh_state(i, 'off');
       set_tom1_state(i, 'off');
       set_tom2_state(i, 'off');
       set_tom4_state(i, 'off');
       set_snare_state(i, 'off');
       set_kick_state(i, 'off');
+      // The left foot was missed when its lane was added: CLEAR ALL left the
+      // row standing. Both feet and both cymbals now go with everything else.
+      set_kick2_state(i, 'off');
     }
     updateSheetMusic();
   };
+
+  function isCymbalsVisible() {
+    var container = document.getElementById('cymbal-container');
+    return !!container && container.style.display == 'block';
+  }
 
   function isDoublePedalVisible() {
     var container = document.getElementById('kick2-container');
@@ -2798,6 +2922,27 @@ function GrooveWriter() {
     if (gridWrapper) addOrRemoveKeywordFromClass(gridWrapper, 'tomsVisible', OnElseOff);
     if (OnElseOff) addOrRemoveKeywordFromClassById('showHideTomsButton', 'ClickToHide', true);
     else addOrRemoveKeywordFromClassById('showHideTomsButton', 'ClickToHide', false);
+
+    if (!dontRefreshScreen) updateSheetMusic();
+
+    return false; // don't follow the link
+  };
+
+  /**
+   * Show or hide the auxiliary cymbal row.
+   *
+   * Nothing else changes when it appears: unlike the double pedal, which takes
+   * the hi-hat splash off the kick row because it is the same foot, a china or
+   * a splash conflicts with nothing. It is another surface under another hand,
+   * which is the reason it is a lane rather than two more hi-hat articulations.
+   */
+  root.showHideCymbals = function (force, showElseHide, dontRefreshScreen) {
+    var OnElseOff = showHideCSS_ClassDisplay('.cymbal-container', force, showElseHide, 'block');
+    showHideCSS_ClassDisplay('.cymbal-label', force, showElseHide, 'block');
+
+    var gridWrapper = document.getElementById('musicalInput');
+    if (gridWrapper) addOrRemoveKeywordFromClass(gridWrapper, 'cymbalsVisible', OnElseOff);
+    addOrRemoveKeywordFromClassById('showHideCymbalsButton', 'ClickToHide', OnElseOff);
 
     if (!dontRefreshScreen) updateSheetMusic();
 
@@ -3206,6 +3351,8 @@ function GrooveWriter() {
       setFunction = set_kick_state;
     } else if (drumType == 'K2') {
       setFunction = set_kick2_state;
+    } else if (drumType == 'C') {
+      setFunction = set_cymbal_state;
     }
 
     // decode the %7C url encoding types
@@ -3254,6 +3401,7 @@ function GrooveWriter() {
           break;
         case 'c':
           if (drumType == 'Stickings') setFunction(displayIndex, 'count', false);
+          else if (drumType == 'C') setFunction(displayIndex, 'china', false);
           else setFunction(displayIndex, 'crash', false);
           break;
         case 'e':
@@ -3294,7 +3442,8 @@ function GrooveWriter() {
           else if (drumType == 'Stickings') setFunction(displayIndex, 'right', false);
           break;
         case 's':
-          setFunction(displayIndex, 'stacker', false);
+          if (drumType == 'C') setFunction(displayIndex, 'splash', false);
+          else setFunction(displayIndex, 'stacker', false);
           break;
         case 'x':
           if (drumType == 'S') setFunction(displayIndex, 'xstick', false);
@@ -3350,6 +3499,8 @@ function GrooveWriter() {
       setFunction = set_kick_state;
     } else if (drumType == 'K2') {
       setFunction = set_kick2_state;
+    } else if (drumType == 'C') {
+      setFunction = set_cymbal_state;
     }
 
     //  DisplayIndex is the index into the notes on the HTML page  starts at 1/32\n%%flatbeams
@@ -3444,6 +3595,12 @@ function GrooveWriter() {
           break;
         case constant_ABC_KI_Splash:
           setFunction(displayIndex, 'splash', false);
+          break;
+        case constant_ABC_CY_Splash:
+          setFunction(displayIndex, 'splash', false);
+          break;
+        case constant_ABC_CY_China:
+          setFunction(displayIndex, 'china', false);
           break;
         case constant_ABC_KI_Normal:
         case constant_ABC_KI2_Normal:
@@ -3716,9 +3873,11 @@ function GrooveWriter() {
     setNotesFromABCArray('S', myGrooveData.snare_array, class_number_of_measures);
     setNotesFromABCArray('K', myGrooveData.kick_array, class_number_of_measures);
     setNotesFromABCArray('K2', myGrooveData.kick2_array, class_number_of_measures);
+    setNotesFromABCArray('C', myGrooveData.cymbal_array, class_number_of_measures);
 
     if (myGrooveData.showToms) root.showHideToms(true, true, true);
     if (myGrooveData.showDoublePedal) root.showHideDoublePedal(true, true, true);
+    if (myGrooveData.showCymbals) root.showHideCymbals(true, true, true);
 
     if (myGrooveData.showStickings) root.stickingsShowHide(true, true, true);
 
@@ -3776,12 +3935,14 @@ function GrooveWriter() {
     Snare,
     Kick,
     Tom2,
-    Kick2
+    Kick2,
+    Cymbal
   ) {
     var oldDivision = class_time_division;
     var wasStickingsVisable = isStickingsVisible();
     var wasTomsVisable = isTomsVisible();
     var wasDoublePedalVisable = isDoublePedalVisible();
+    var wasCymbalsVisable = isCymbalsVisible();
 
     class_time_division = newDivision;
     class_notes_per_measure = root.myGrooveUtils.calc_notes_per_measure(
@@ -3809,6 +3970,7 @@ function GrooveWriter() {
 
     if (wasTomsVisable) root.showHideToms(true, true, true);
     if (wasDoublePedalVisable) root.showHideDoublePedal(true, true, true);
+    if (wasCymbalsVisable) root.showHideCymbals(true, true, true);
 
     // now set the right notes on and off
     if (Stickings && HH && Tom1 && Tom4 && Snare && Kick) {
@@ -3822,6 +3984,7 @@ function GrooveWriter() {
       setNotesFromURLData('S', Snare, class_number_of_measures);
       setNotesFromURLData('K', Kick, class_number_of_measures);
       if (Kick2) setNotesFromURLData('K2', Kick2, class_number_of_measures);
+      if (Cymbal) setNotesFromURLData('C', Cymbal, class_number_of_measures);
     }
 
     // un-highlight the old div
@@ -3869,6 +4032,7 @@ function GrooveWriter() {
     var uiSnare = '|';
     var uiKick = '|';
     var uiKick2 = '|';
+    var uiCymbal = '|';
 
     if (newDivision == 48 && !have_shown_mixed_division_message) {
       have_shown_mixed_division_message = true;
@@ -3921,6 +4085,7 @@ function GrooveWriter() {
         uiSnare += get_snare_state(i, 'URL');
         uiKick += get_kick_state(i, 'URL');
         uiKick2 += get_kick2_state(i, 'URL');
+        uiCymbal += get_cymbal_state(i, 'URL');
       }
 
       // override the hi-hat if we are going to a higher division.
@@ -3982,7 +4147,8 @@ function GrooveWriter() {
       uiSnare,
       uiKick,
       uiTom2,
-      uiKick2
+      uiKick2,
+      uiCymbal
     );
 
     updateSheetMusic();

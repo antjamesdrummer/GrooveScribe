@@ -12,6 +12,8 @@
 
 import { getNoteScaler } from './musicMath.js';
 import {
+  constant_ABC_CY_China,
+  constant_ABC_CY_Splash,
   constant_ABC_HH_Accent,
   constant_ABC_HH_Close,
   constant_ABC_HH_Cow_Bell,
@@ -215,6 +217,32 @@ export function get_kick2_state(id, returnType) {
   return '-';
 }
 
+/**
+ * The auxiliary cymbal lane: china, splash, or nothing.
+ *
+ * Read the same way every other lane is — off the rendered colour of the cell's
+ * own note part — so a cymbal written by a URL, by a click or by a division
+ * change all read back identically.
+ */
+export function get_cymbal_state(id, returnType) {
+  if (returnType != 'ABC' && returnType != 'URL') {
+    console.log('bad returnType in get_cymbal_state()');
+    returnType = 'ABC';
+  }
+
+  var china = document.getElementById('cymbal_china' + id);
+  if (china && china.style.color == constant_note_on_color_rgb) {
+    return returnType == 'ABC' ? constant_ABC_CY_China : 'c';
+  }
+
+  var splash = document.getElementById('cymbal_splash' + id);
+  if (splash && splash.style.color == constant_note_on_color_rgb) {
+    return returnType == 'ABC' ? constant_ABC_CY_Splash : 's';
+  }
+
+  return returnType == 'ABC' ? false : '-';
+}
+
 export function is_hh_on(id) {
   var state = get_hh_state(id, 'ABC');
 
@@ -354,7 +382,8 @@ export function get32NoteArrayFromClickableUI(
   startIndexForClickableUI,
   ctx,
   // Last, so every existing positional caller is untouched.
-  Kick2_Array
+  Kick2_Array,
+  Cymbal_Array
 ) {
   var scaler = getNoteScaler(ctx.notesPerMeasure, ctx.numBeatsPerMeasure, ctx.noteValuePerMeasure); // fill proportionally
 
@@ -380,6 +409,9 @@ export function get32NoteArrayFromClickableUI(
 
     if (Kick2_Array && ctx.doublePedalVisible)
       Kick2_Array[array_index] = get_kick2_state(i + startIndexForClickableUI, 'ABC');
+
+    if (Cymbal_Array && ctx.cymbalsVisible)
+      Cymbal_Array[array_index] = get_cymbal_state(i + startIndexForClickableUI, 'ABC');
   }
 
   var num_notes = Snare_Array.length;
@@ -396,7 +428,8 @@ export function muteArrayFromClickableUI(
   Toms_Array,
   measureIndex,
   isInstrumentMuted,
-  Kick2_Array
+  Kick2_Array,
+  Cymbal_Array
 ) {
   if (isInstrumentMuted('hh', measureIndex + 1))
     fill_array_with_value_false(HH_Array, HH_Array.length);
@@ -406,6 +439,8 @@ export function muteArrayFromClickableUI(
     fill_array_with_value_false(Kick_Array, Kick_Array.length);
   if (Kick2_Array && isInstrumentMuted('kick2', measureIndex + 1))
     fill_array_with_value_false(Kick2_Array, Kick2_Array.length);
+  if (Cymbal_Array && isInstrumentMuted('cymbal', measureIndex + 1))
+    fill_array_with_value_false(Cymbal_Array, Cymbal_Array.length);
 
   for (var i = 0; i < Toms_Array.length; i++) {
     if (isInstrumentMuted('tom' + (i + 1), measureIndex + 1))

@@ -144,6 +144,26 @@ export function getGrooveDataFromUrlString(encodedURLData, config = {}) {
     myGrooveData.numberOfMeasures
   );
 
+  // The auxiliary cymbal lane: a china or a splash, alongside whatever the
+  // hands are already doing on the hi-hat lane.
+  //
+  // Presence of the parameter turns the lane on, the same rule the toms and
+  // the double pedal follow. A groove that never used it emits no C at all, so
+  // every share link written before this existed keeps exactly the shape it
+  // had.
+  var Cymbal_string = getQueryVariableFromString('C', false, encodedURLData);
+  if (Cymbal_string) {
+    myGrooveData.showCymbals = true;
+  } else {
+    Cymbal_string = GetEmptyGroove(myGrooveData.notesPerMeasure, myGrooveData.numberOfMeasures);
+  }
+  myGrooveData.cymbal_array = noteArraysFromURLData(
+    'C',
+    Cymbal_string,
+    myGrooveData.notesPerMeasure,
+    myGrooveData.numberOfMeasures
+  );
+
   // Get the Toms
   for (i = 0; i < 4; i++) {
     // toms are named T1, T2, T3, T4
@@ -328,6 +348,22 @@ export function getUrlStringFromGrooveData(myGrooveData, url_destination, editor
       tabLineFromAbcNoteArray(
         'K2',
         myGrooveData.kick2_array,
+        true,
+        true,
+        total_notes,
+        myGrooveData.notesPerMeasure
+      );
+  }
+
+  // Emitted whenever the lane is shown, even when empty — same as the toms and
+  // the left foot, and for the same reason: a link should reopen showing the
+  // row its author was working in.
+  if (myGrooveData.showCymbals) {
+    fullURL +=
+      '&C=|' +
+      tabLineFromAbcNoteArray(
+        'C',
+        myGrooveData.cymbal_array,
         true,
         true,
         total_notes,

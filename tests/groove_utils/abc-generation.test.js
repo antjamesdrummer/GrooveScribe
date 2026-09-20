@@ -120,6 +120,8 @@ describe('GrooveUtils ABC notation generation', () => {
           ' <defs>\n' +
           ' <path id="Xhead" d="m-3,-3 l6,6 m0,-6 l-6,6" class="stroke" style="stroke-width:1.2"/>\n' +
           ' <path id="Trihead" d="m-3,2 l 6,0 l-3,-6 l-3,6 l6,0" class="stroke" style="stroke-width:1.2"/>\n' +
+          ' <path id="Splashhead" d="m-2.2,-2.2 l4.4,4.4 m0,-4.4 l-4.4,4.4" class="stroke" style="stroke-width:1.2"/>\n' +
+          ' <path id="Chinahead" d="m-2.4,-2.4 l4.8,4.8 m0,-4.8 l-4.8,4.8 m-1.8,-2.4 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0" class="stroke" style="stroke-width:1.2"/>\n' +
           ' </defs>\n' +
           '%%endsvg\n' +
           '%%map drum ^g heads=Xhead print=g       % Hi-Hat\n' +
@@ -132,6 +134,8 @@ describe('GrooveUtils ABC notation generation', () => {
           "%%map drum ^D' heads=Trihead print=g   % Cow Bell\n" +
           '%%map drum ^c heads=Xhead print=c  % Cross Stick\n' +
           '%%map drum ^d, heads=Xhead print=d,  % Foot Splash\n' +
+          '%%map drum ^b heads=Splashhead print=b  % Splash\n' +
+          "%%map drum ^g' heads=Chinahead print=b   % China\n" +
           '%%staves (Stickings Hands Feet)\n' +
           'K:C clef=perc\n'
       );
@@ -331,6 +335,8 @@ describe('GrooveUtils ABC notation generation', () => {
           ' <defs>\n' +
           ' <path id="Xhead" d="m-3,-3 l6,6 m0,-6 l-6,6" class="stroke" style="stroke-width:1.2"/>\n' +
           ' <path id="Trihead" d="m-3,2 l 6,0 l-3,-6 l-3,6 l6,0" class="stroke" style="stroke-width:1.2"/>\n' +
+          ' <path id="Splashhead" d="m-2.2,-2.2 l4.4,4.4 m0,-4.4 l-4.4,4.4" class="stroke" style="stroke-width:1.2"/>\n' +
+          ' <path id="Chinahead" d="m-2.4,-2.4 l4.8,4.8 m0,-4.8 l-4.8,4.8 m-1.8,-2.4 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0" class="stroke" style="stroke-width:1.2"/>\n' +
           ' </defs>\n' +
           '%%endsvg\n' +
           '%%map drum ^g heads=Xhead print=g       % Hi-Hat\n' +
@@ -343,6 +349,8 @@ describe('GrooveUtils ABC notation generation', () => {
           "%%map drum ^D' heads=Trihead print=g   % Cow Bell\n" +
           '%%map drum ^c heads=Xhead print=c  % Cross Stick\n' +
           '%%map drum ^d, heads=Xhead print=d,  % Foot Splash\n' +
+          '%%map drum ^b heads=Splashhead print=b  % Splash\n' +
+          "%%map drum ^g' heads=Chinahead print=b   % China\n" +
           '%%staves (Stickings Hands Feet)\n' +
           'K:C clef=perc\n' +
           'V:Stickings\n' +

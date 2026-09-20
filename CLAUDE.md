@@ -90,6 +90,51 @@ Entry/support: `main.js` (index.html bootstrap, wires `window.myGrooveWriter` et
 - `tests-e2e/` — Playwright (Chromium). `golden-master.spec.js` snapshots SVG+MIDI for a
   groove corpus; `fixtures.js` blocks non-localhost requests for hermetic runs.
 
+## Note lanes
+
+Each lane is one URL parameter, one grid row and one array on `grooveData`. The
+lanes beyond the original four — `T1`-`T4` (toms), `K2` (the left foot's bass
+drum) and `C` (auxiliary cymbals) — all follow the same rule: **the presence of
+the parameter turns the row on.** There is no separate visibility flag that
+could disagree with the notes, and a groove that never used a lane emits no
+parameter at all, so every share URL written before it existed keeps its shape.
+
+Adding one touches: `constants.js` (ABC token + MIDI note), `grooveData.js`
+(array + show flag), `noteArrays.js` (tab ↔ ABC both ways, and the highlight
+mapping), `urlSerialization.js` (read + write), `abcNotation.js` (the `%%map`
+notehead and threading the array into the right voice), `midiFile.js`,
+`gridState.js` (the read layer), `groove_writer.js` (setter, the click
+handlers, the show/hide toggle, and BOTH byte-identical dispatch blocks in
+`setNotesFromURLData` / `setNotesFromABCArray`), `viewHtml.js` (the row),
+`index.html` (button + context menus) and both CSS themes.
+
+### The auxiliary cymbal lane (`C`)
+
+A china (`c`) or a splash (`s`), on their own row above the hi-hat.
+
+- **Not more articulations in the hi-hat lane.** That lane already carries the
+  crash, the ride, the bell, the cowbell and the stacker, and it holds ONE
+  cymbal per step. The case this row exists for is a splash landing while a
+  hand is already keeping time on the hi-hat, which one lane cannot express.
+- **Both print in the same place** — B above the stave, the free space between
+  the ride's ledger line and the crash's — and are told apart by the notehead:
+  a small plain cross for the splash, a cross in a ring for the china. Same
+  arrangement as the cow bell, which prints on the hi-hat's own position with a
+  triangle. They are one lane, so the two can never collide.
+  Stacking them at different heights was tried and is worse: only one clean
+  position is free, so the second cymbal landed at `g'` under four ledger
+  lines — and the mark distinguishing it then sat at the same height as a
+  ledger line.
+- **Playback and download disagree about the splash, deliberately.** General
+  MIDI's splash is note 55 and `soundfont/gunshot-ogg.js` has `"G3": ""` for
+  it — an entry with no sample, the same trap the left foot fell into. The
+  download gets 55, because it is read by other software with its own sounds;
+  the browser gets the crash sample at a lower velocity. The china needs no
+  such split: General MIDI's 52 is also where the stacker sample lives.
+- **A left click cycles** off → splash → china → off, because the row has two
+  articulations and no default. Every other note row toggles; the sticking row
+  already rotates.
+
 ## Conventions & gotchas
 
 - **Adding a new `js/*.js` ES module:** add it to the module-files list in

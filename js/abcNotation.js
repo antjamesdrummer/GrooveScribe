@@ -181,7 +181,9 @@ function snare_HH_kick_ABC_for_triplets(
   numberOfMeasuresPerLine,
   // Last and optional: this function is called positionally from several
   // places, and a parameter in the middle would silently shift every one.
-  kick2_array
+  kick2_array,
+  // Same treatment again, and for the same reason: positional callers.
+  cymbal_array
 ) {
   var scaler = 1; // we are always in 48 notes here, and the ABC needs to think we are in 48 since the specified division is 1/32
   var ABC_String = '';
@@ -194,6 +196,12 @@ function snare_HH_kick_ABC_for_triplets(
   // two independent rhythms where the drummer is playing one.
   var feet_arrays = kick2_array ? [kick_array, kick2_array] : [kick_array];
 
+  // The auxiliary cymbals are a HAND voice, so they join the snare and hi-hat
+  // rather than getting a voice of their own. A china played under a hi-hat
+  // pattern is one chord on one stem, which is how a drummer reads it and how
+  // ABC writes it.
+  var hands_arrays = cymbal_array ? [snare_array, HH_array, cymbal_array] : [snare_array, HH_array];
+
   var all_drum_array_of_array;
 
   // console.log(HH_array);
@@ -205,9 +213,9 @@ function snare_HH_kick_ABC_for_triplets(
     // Both feet, not just the kick. kickStemsUp is the default, so leaving the
     // left foot out here dropped every one of its notes from a triplet groove
     // while the straight one looked fine.
-    all_drum_array_of_array = [snare_array, HH_array].concat(feet_arrays);
+    all_drum_array_of_array = hands_arrays.concat(feet_arrays);
   } else {
-    all_drum_array_of_array = [snare_array, HH_array]; // exclude the feet
+    all_drum_array_of_array = hands_arrays.slice(0); // exclude the feet
   }
   if (toms_array) all_drum_array_of_array = all_drum_array_of_array.concat(toms_array);
 
@@ -512,7 +520,9 @@ function snare_HH_kick_ABC_for_quads(
   numberOfMeasuresPerLine,
   // Last and optional: this function is called positionally from several
   // places, and a parameter in the middle would silently shift every one.
-  kick2_array
+  kick2_array,
+  // Same treatment again, and for the same reason: positional callers.
+  cymbal_array
 ) {
   var scaler = 1; // we are always in 32ths notes here
   var ABC_String = '';
@@ -525,9 +535,15 @@ function snare_HH_kick_ABC_for_quads(
   // two independent rhythms where the drummer is playing one.
   var feet_arrays = kick2_array ? [kick_array, kick2_array] : [kick_array];
 
+  // The auxiliary cymbals are a HAND voice, so they join the snare and hi-hat
+  // rather than getting a voice of their own. A china played under a hi-hat
+  // pattern is one chord on one stem, which is how a drummer reads it and how
+  // ABC writes it.
+  var hands_arrays = cymbal_array ? [snare_array, HH_array, cymbal_array] : [snare_array, HH_array];
+
   var all_drum_array_of_array;
 
-  all_drum_array_of_array = [snare_array, HH_array]; // exclude the kick
+  all_drum_array_of_array = hands_arrays.slice(0); // exclude the kick
   if (toms_array) all_drum_array_of_array = all_drum_array_of_array.concat(toms_array);
   // Add the kick array last to solve a subtle bug with the kick foot splash combo note
   // If the combo note comes last in a multi note event it will space correctly.  If it
@@ -694,6 +710,17 @@ export function get_top_ABC_BoilerPlate(
     ' <defs>\n' +
     ' <path id="Xhead" d="m-3,-3 l6,6 m0,-6 l-6,6" class="stroke" style="stroke-width:1.2"/>\n' +
     ' <path id="Trihead" d="m-3,2 l 6,0 l-3,-6 l-3,6 l6,0" class="stroke" style="stroke-width:1.2"/>\n' +
+    // The two auxiliary cymbals share a position, so the head is the whole of
+    // the difference and the two have to be unmistakable at a glance: a small
+    // plain cross for the splash, a cross inside a ring for the china. The
+    // ring is what the grid's own china icon draws too, so the two views of
+    // the same note agree.
+    //
+    // Nothing here is a straight line, deliberately. A horizontal mark above a
+    // notehead is indistinguishable from a ledger line, which is what the
+    // first attempt at a china head turned out to be.
+    ' <path id="Splashhead" d="m-2.2,-2.2 l4.4,4.4 m0,-4.4 l-4.4,4.4" class="stroke" style="stroke-width:1.2"/>\n' +
+    ' <path id="Chinahead" d="m-2.4,-2.4 l4.8,4.8 m0,-4.8 l-4.8,4.8 m-1.8,-2.4 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0" class="stroke" style="stroke-width:1.2"/>\n' +
     ' </defs>\n' +
     '%%endsvg\n' +
     '%%map drum ^g heads=Xhead print=g       % Hi-Hat\n' +
@@ -705,7 +732,11 @@ export function get_top_ABC_BoilerPlate(
     "%%map drum ^B' heads=Trihead print=A' % Ride Bell\n" +
     "%%map drum ^D' heads=Trihead print=g   % Cow Bell\n" +
     '%%map drum ^c heads=Xhead print=c  % Cross Stick\n' +
-    '%%map drum ^d, heads=Xhead print=d,  % Foot Splash\n';
+    '%%map drum ^d, heads=Xhead print=d,  % Foot Splash\n' +
+    // The auxiliary cymbal lane: one position, two heads. Same arrangement as
+    // the cow bell two lines up, which prints on the hi-hat's own position.
+    '%%map drum ^b heads=Splashhead print=b  % Splash\n' +
+    "%%map drum ^g' heads=Chinahead print=b   % China\n";
 
   //if(kick_stems_up)
   //fullABC += "%%staves (Stickings Hands)\n";
@@ -755,7 +786,8 @@ export function create_ABC_from_snare_HH_kick_arrays(
   kick_stems_up,
   timeSigTop,
   timeSigBottom,
-  kick2_array
+  kick2_array,
+  cymbal_array
 ) {
   // convert sticking count symbol to the actual count
   // do this right before ABC output so it can't every get encoded into something that gets saved.
@@ -788,7 +820,8 @@ export function create_ABC_from_snare_HH_kick_arrays(
       timeSigTop,
       timeSigBottom,
       numberOfMeasuresPerLine,
-      kick2_array
+      kick2_array,
+      cymbal_array
     );
   } else {
     return snare_HH_kick_ABC_for_quads(
@@ -805,7 +838,8 @@ export function create_ABC_from_snare_HH_kick_arrays(
       timeSigTop,
       timeSigBottom,
       numberOfMeasuresPerLine,
-      kick2_array
+      kick2_array,
+      cymbal_array
     );
   }
 }
@@ -849,6 +883,13 @@ export function createABCFromGrooveData(gu, myGrooveData, renderWidth) {
   );
   var FullNoteKick2Array = scaleNoteArrayToFullSize(
     myGrooveData.kick2_array,
+    myGrooveData.numberOfMeasures,
+    myGrooveData.notesPerMeasure,
+    myGrooveData.numBeats,
+    myGrooveData.noteValue
+  );
+  var FullNoteCymbalArray = scaleNoteArrayToFullSize(
+    myGrooveData.cymbal_array,
     myGrooveData.numberOfMeasures,
     myGrooveData.notesPerMeasure,
     myGrooveData.numBeats,
@@ -902,7 +943,8 @@ export function createABCFromGrooveData(gu, myGrooveData, renderWidth) {
     myGrooveData.kickStemsUp,
     myGrooveData.numBeats,
     myGrooveData.noteValue,
-    FullNoteKick2Array
+    FullNoteKick2Array,
+    FullNoteCymbalArray
   );
 
   gu.note_mapping_array = create_note_mapping_array_for_highlighting(
@@ -911,7 +953,8 @@ export function createABCFromGrooveData(gu, myGrooveData, renderWidth) {
     FullNoteKickArray,
     FullNoteTomsArray,
     FullNoteHHArray.length,
-    FullNoteKick2Array
+    FullNoteKick2Array,
+    FullNoteCymbalArray
   );
 
   // console.log(fullABC);
