@@ -30,7 +30,7 @@ export const constant_ABC_HH_Normal = '^g';
  * keeping time on something else. Two voices at one step needs two lanes.
  *
  * Both are DRAWN in the same place — B natural above the stave, the free space
- * between the ride's ledger line and the crash's — and told apart by the
+ * between the first ledger line and the crash's — and told apart by the
  * notehead, the way the cowbell is already told apart from the hi-hat it
  * shares a position with. They are one lane, so only one of them can be on a
  * given step and the two can never collide.
@@ -45,9 +45,14 @@ export const constant_ABC_HH_Normal = '^g';
  * The tokens keep their own pitches because the pitch is the identity ABC
  * matches on; `print=` is what decides where it is drawn. See the %%map lines
  * in abcNotation.js.
+ *
+ * That identity is the pitch, not the spelling: B' and b are the same note in
+ * ABC. The splash was first written ^b, which is the ride bell's ^B', so the
+ * splash's %%map line took the bell over and every ride bell was drawn as a
+ * splash. Hence ^a', a pitch nothing else uses.
  */
 export const constant_ABC_CY_China = "^g'";
-export const constant_ABC_CY_Splash = '^b';
+export const constant_ABC_CY_Splash = "^a'";
 export const constant_ABC_SN_Ghost = '!(.!!).!c';
 export const constant_ABC_SN_Accent = '!accent!c';
 export const constant_ABC_SN_Normal = 'c';

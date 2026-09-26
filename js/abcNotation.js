@@ -728,14 +728,17 @@ export function get_top_ABC_BoilerPlate(
     "%%map drum ^d' heads=Xhead print=d'   % Stacker\n" +
     "%%map drum ^e' heads=Xhead print=e'   % Metronome click\n" +
     "%%map drum ^f' heads=Xhead print=f'   % Metronome beep\n" +
-    "%%map drum ^A' heads=Xhead print=A'   % Ride\n" +
-    "%%map drum ^B' heads=Trihead print=A' % Ride Bell\n" +
+    // The ride and its bell are drawn on the top line of the stave (F), not the
+    // ledger line above it. Only where they're drawn moved: the ^A' and ^B'
+    // tokens, and so the sounds, are unchanged. The head tells them apart.
+    "%%map drum ^A' heads=Xhead print=f    % Ride\n" +
+    "%%map drum ^B' heads=Trihead print=f  % Ride Bell\n" +
     "%%map drum ^D' heads=Trihead print=g   % Cow Bell\n" +
     '%%map drum ^c heads=Xhead print=c  % Cross Stick\n' +
     '%%map drum ^d, heads=Xhead print=d,  % Foot Splash\n' +
     // The auxiliary cymbal lane: one position, two heads. Same arrangement as
     // the cow bell two lines up, which prints on the hi-hat's own position.
-    '%%map drum ^b heads=Splashhead print=b  % Splash\n' +
+    "%%map drum ^a' heads=Splashhead print=b  % Splash\n" +
     "%%map drum ^g' heads=Chinahead print=b   % China\n";
 
   //if(kick_stems_up)

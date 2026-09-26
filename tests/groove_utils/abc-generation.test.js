@@ -129,12 +129,12 @@ describe('GrooveUtils ABC notation generation', () => {
           "%%map drum ^d' heads=Xhead print=d'   % Stacker\n" +
           "%%map drum ^e' heads=Xhead print=e'   % Metronome click\n" +
           "%%map drum ^f' heads=Xhead print=f'   % Metronome beep\n" +
-          "%%map drum ^A' heads=Xhead print=A'   % Ride\n" +
-          "%%map drum ^B' heads=Trihead print=A' % Ride Bell\n" +
+          "%%map drum ^A' heads=Xhead print=f    % Ride\n" +
+          "%%map drum ^B' heads=Trihead print=f  % Ride Bell\n" +
           "%%map drum ^D' heads=Trihead print=g   % Cow Bell\n" +
           '%%map drum ^c heads=Xhead print=c  % Cross Stick\n' +
           '%%map drum ^d, heads=Xhead print=d,  % Foot Splash\n' +
-          '%%map drum ^b heads=Splashhead print=b  % Splash\n' +
+          "%%map drum ^a' heads=Splashhead print=b  % Splash\n" +
           "%%map drum ^g' heads=Chinahead print=b   % China\n" +
           '%%staves (Stickings Hands Feet)\n' +
           'K:C clef=perc\n'
@@ -344,12 +344,12 @@ describe('GrooveUtils ABC notation generation', () => {
           "%%map drum ^d' heads=Xhead print=d'   % Stacker\n" +
           "%%map drum ^e' heads=Xhead print=e'   % Metronome click\n" +
           "%%map drum ^f' heads=Xhead print=f'   % Metronome beep\n" +
-          "%%map drum ^A' heads=Xhead print=A'   % Ride\n" +
-          "%%map drum ^B' heads=Trihead print=A' % Ride Bell\n" +
+          "%%map drum ^A' heads=Xhead print=f    % Ride\n" +
+          "%%map drum ^B' heads=Trihead print=f  % Ride Bell\n" +
           "%%map drum ^D' heads=Trihead print=g   % Cow Bell\n" +
           '%%map drum ^c heads=Xhead print=c  % Cross Stick\n' +
           '%%map drum ^d, heads=Xhead print=d,  % Foot Splash\n' +
-          '%%map drum ^b heads=Splashhead print=b  % Splash\n' +
+          "%%map drum ^a' heads=Splashhead print=b  % Splash\n" +
           "%%map drum ^g' heads=Chinahead print=b   % China\n" +
           '%%staves (Stickings Hands Feet)\n' +
           'K:C clef=perc\n' +

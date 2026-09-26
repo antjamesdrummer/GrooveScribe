@@ -112,10 +112,29 @@ describe('auxiliary cymbal lane (C)', () => {
     const gd = gu.getGrooveDataFromUrlString(url('&C=|c---s-----------|'));
     const abc = gu.createABCFromGrooveData(gd, 800);
 
-    expect(abc).toContain('%%map drum ^b heads=Splashhead');
+    expect(abc).toContain("%%map drum ^a' heads=Splashhead");
     expect(abc).toContain("%%map drum ^g' heads=Chinahead print=b");
     expect(abc).toContain('id="Chinahead"');
     expect(abc).toContain('id="Splashhead"');
+  });
+
+  it('gives every mapped drum a pitch of its own', () => {
+    // abc2svg matches a %%map line on the pitch, and B' and b are the same
+    // pitch spelled two ways. Two lines on one pitch means the later one wins
+    // and the earlier instrument is drawn with the wrong head — which is how
+    // every ride bell came to be drawn as a splash.
+    const gd = gu.getGrooveDataFromUrlString(url('&C=|c---s-----------|'));
+    const abc = gu.createABCFromGrooveData(gd, 800);
+
+    const pitchOf = (token) => {
+      const m = token.match(/^([_^=]*)([A-Ga-g])([',]*)$/);
+      const octave = (m[2] === m[2].toLowerCase() ? 1 : 0) + (m[3].match(/'/g) || []).length - (m[3].match(/,/g) || []).length;
+      return `${m[1]}${m[2].toUpperCase()}${octave}`;
+    };
+    const pitches = [...abc.matchAll(/^%%map drum (\S+)/gm)].map((m) => pitchOf(m[1]));
+
+    expect(pitches.length).toBeGreaterThan(10);
+    expect(new Set(pitches).size).toBe(pitches.length);
   });
 
   describe('playback', () => {
