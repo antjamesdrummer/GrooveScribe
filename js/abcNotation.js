@@ -724,7 +724,9 @@ export function get_top_ABC_BoilerPlate(
     ' </defs>\n' +
     '%%endsvg\n' +
     '%%map drum ^g heads=Xhead print=g       % Hi-Hat\n' +
-    "%%map drum ^c' heads=Xhead print=c'   % Crash\n" +
+    // The crash is drawn on the A above the stave (the first ledger line), the
+    // line the ride used to have. Its ^c' token, and so its sound, is unchanged.
+    "%%map drum ^c' heads=Xhead print=a    % Crash\n" +
     "%%map drum ^d' heads=Xhead print=d'   % Stacker\n" +
     "%%map drum ^e' heads=Xhead print=e'   % Metronome click\n" +
     "%%map drum ^f' heads=Xhead print=f'   % Metronome beep\n" +

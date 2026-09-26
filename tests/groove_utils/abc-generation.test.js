@@ -125,7 +125,7 @@ describe('GrooveUtils ABC notation generation', () => {
           ' </defs>\n' +
           '%%endsvg\n' +
           '%%map drum ^g heads=Xhead print=g       % Hi-Hat\n' +
-          "%%map drum ^c' heads=Xhead print=c'   % Crash\n" +
+          "%%map drum ^c' heads=Xhead print=a    % Crash\n" +
           "%%map drum ^d' heads=Xhead print=d'   % Stacker\n" +
           "%%map drum ^e' heads=Xhead print=e'   % Metronome click\n" +
           "%%map drum ^f' heads=Xhead print=f'   % Metronome beep\n" +
@@ -340,7 +340,7 @@ describe('GrooveUtils ABC notation generation', () => {
           ' </defs>\n' +
           '%%endsvg\n' +
           '%%map drum ^g heads=Xhead print=g       % Hi-Hat\n' +
-          "%%map drum ^c' heads=Xhead print=c'   % Crash\n" +
+          "%%map drum ^c' heads=Xhead print=a    % Crash\n" +
           "%%map drum ^d' heads=Xhead print=d'   % Stacker\n" +
           "%%map drum ^e' heads=Xhead print=e'   % Metronome click\n" +
           "%%map drum ^f' heads=Xhead print=f'   % Metronome beep\n" +

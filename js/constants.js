@@ -29,8 +29,8 @@ export const constant_ABC_HH_Normal = '^g';
  * whole reason to write a splash is that it lands while the hands are already
  * keeping time on something else. Two voices at one step needs two lanes.
  *
- * Both are DRAWN in the same place — B natural above the stave, the free space
- * between the first ledger line and the crash's — and told apart by the
+ * Both are DRAWN in the same place — B natural above the stave, the space
+ * just above the crash on the first ledger line — and told apart by the
  * notehead, the way the cowbell is already told apart from the hi-hat it
  * shares a position with. They are one lane, so only one of them can be on a
  * given step and the two can never collide.
