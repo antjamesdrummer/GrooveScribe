@@ -11,6 +11,14 @@ export const constant_ABC_STICK_COUNT = '"count"x';
 export const constant_ABC_STICK_OFF = '""x';
 export const constant_ABC_HH_Ride = "^A'";
 export const constant_ABC_HH_Ride_Bell = "^B'";
+/**
+ * An accented ride and ride bell: R and B in the hi-hat lane, as X is the
+ * accented hi-hat. The editor's grid has no control for them — it writes r and
+ * b — so they arrive only from a link, and are drawn and played with the
+ * accent. Opened in the editor they show as a plain ride or bell.
+ */
+export const constant_ABC_HH_Ride_Accent = "!accent!^A'";
+export const constant_ABC_HH_Ride_Bell_Accent = "!accent!^B'";
 export const constant_ABC_HH_Cow_Bell = "^D'";
 export const constant_ABC_HH_Crash = "^c'";
 export const constant_ABC_HH_Stacker = "^d'";
@@ -77,6 +85,14 @@ export const constant_ABC_T1_Normal = 'e';
 export const constant_ABC_T2_Normal = 'd';
 export const constant_ABC_T3_Normal = 'B';
 export const constant_ABC_T4_Normal = 'A';
+/**
+ * Accented toms: O in a tom lane, as it is in the snare's. Like the accented
+ * ride they come only from a link; the grid writes a plain tom.
+ */
+export const constant_ABC_T1_Accent = '!accent!e';
+export const constant_ABC_T2_Accent = '!accent!d';
+export const constant_ABC_T3_Accent = '!accent!B';
+export const constant_ABC_T4_Accent = '!accent!A';
 export const constant_NUMBER_OF_TOMS = 4;
 export const constant_ABC_OFF = false;
 export const constant_OUR_MIDI_VELOCITY_NORMAL = 85;

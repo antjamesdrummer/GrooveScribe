@@ -14,7 +14,9 @@ import {
   constant_ABC_HH_Normal,
   constant_ABC_HH_Open,
   constant_ABC_HH_Ride,
+  constant_ABC_HH_Ride_Accent,
   constant_ABC_HH_Ride_Bell,
+  constant_ABC_HH_Ride_Bell_Accent,
   constant_ABC_HH_Stacker,
   constant_ABC_KI_Normal,
   constant_ABC_KI2_Normal,
@@ -33,9 +35,13 @@ import {
   constant_ABC_STICK_L,
   constant_ABC_STICK_OFF,
   constant_ABC_STICK_R,
+  constant_ABC_T1_Accent,
   constant_ABC_T1_Normal,
+  constant_ABC_T2_Accent,
   constant_ABC_T2_Normal,
+  constant_ABC_T3_Accent,
   constant_ABC_T3_Normal,
+  constant_ABC_T4_Accent,
   constant_ABC_T4_Normal,
   constant_NUMBER_OF_TOMS,
 } from './constants.js';
@@ -46,7 +52,8 @@ function tablatureToABCNotationPerNote(drumType, tablatureChar) {
     case 'b':
     case 'B':
       if (drumType == 'Stickings') return constant_ABC_STICK_BOTH;
-      else if (drumType == 'H') return constant_ABC_HH_Ride_Bell;
+      else if (drumType == 'H')
+        return tablatureChar == 'B' ? constant_ABC_HH_Ride_Bell_Accent : constant_ABC_HH_Ride_Bell;
       else if (drumType == 'S') return constant_ABC_SN_Buzz;
       break;
     case 'c':
@@ -77,7 +84,20 @@ function tablatureToABCNotationPerNote(drumType, tablatureChar) {
       if (drumType == 'H') return constant_ABC_HH_Metronome_Accent;
       break;
     case 'O':
-      if (drumType == 'S') return constant_ABC_SN_Accent;
+      switch (drumType) {
+        case 'S':
+          return constant_ABC_SN_Accent;
+        case 'T1':
+          return constant_ABC_T1_Accent;
+        case 'T2':
+          return constant_ABC_T2_Accent;
+        case 'T3':
+          return constant_ABC_T3_Accent;
+        case 'T4':
+          return constant_ABC_T4_Accent;
+        default:
+          break;
+      }
       break;
     case 'o':
       switch (drumType) {
@@ -114,7 +134,7 @@ function tablatureToABCNotationPerNote(drumType, tablatureChar) {
     case 'R':
       switch (drumType) {
         case 'H':
-          return constant_ABC_HH_Ride;
+          return tablatureChar == 'R' ? constant_ABC_HH_Ride_Accent : constant_ABC_HH_Ride;
         //break;
         case 'Stickings':
           return constant_ABC_STICK_R;
@@ -209,6 +229,18 @@ function abcNotationToTablaturePerNote(drumType, abcChar) {
       break;
     case constant_ABC_HH_Ride_Bell:
       tabChar = 'b';
+      break;
+    case constant_ABC_HH_Ride_Accent:
+      tabChar = 'R';
+      break;
+    case constant_ABC_HH_Ride_Bell_Accent:
+      tabChar = 'B';
+      break;
+    case constant_ABC_T1_Accent:
+    case constant_ABC_T2_Accent:
+    case constant_ABC_T3_Accent:
+    case constant_ABC_T4_Accent:
+      tabChar = 'O';
       break;
     case constant_ABC_HH_Cow_Bell:
       tabChar = 'm';

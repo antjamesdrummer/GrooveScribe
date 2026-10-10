@@ -37,7 +37,9 @@ import {
   constant_ABC_HH_Normal,
   constant_ABC_HH_Open,
   constant_ABC_HH_Ride,
+  constant_ABC_HH_Ride_Accent,
   constant_ABC_HH_Ride_Bell,
+  constant_ABC_HH_Ride_Bell_Accent,
   constant_ABC_HH_Stacker,
   constant_ABC_KI_Normal,
   constant_ABC_KI2_Normal,
@@ -55,8 +57,11 @@ import {
   constant_ABC_STICK_L,
   constant_ABC_STICK_OFF,
   constant_ABC_STICK_R,
+  constant_ABC_T1_Accent,
   constant_ABC_T1_Normal,
+  constant_ABC_T2_Accent,
   constant_ABC_T2_Normal,
+  constant_ABC_T4_Accent,
   constant_ABC_T4_Normal,
   constant_OUR_MIDI_HIHAT_ACCENT,
   constant_OUR_MIDI_CYMBAL_CHINA,
@@ -3527,10 +3532,13 @@ function GrooveWriter() {
         case constant_ABC_STICK_OFF:
           setFunction(displayIndex, 'off', false);
           break;
+        // The grid has no accented ride, bell or tom: they show as plain ones.
         case constant_ABC_HH_Ride:
+        case constant_ABC_HH_Ride_Accent:
           setFunction(displayIndex, 'ride', false);
           break;
         case constant_ABC_HH_Ride_Bell:
+        case constant_ABC_HH_Ride_Bell_Accent:
           setFunction(displayIndex, 'ride_bell', false);
           break;
         case constant_ABC_HH_Cow_Bell:
@@ -3561,12 +3569,15 @@ function GrooveWriter() {
           setFunction(displayIndex, 'normal', false);
           break;
         case constant_ABC_T1_Normal:
+        case constant_ABC_T1_Accent:
           setFunction(displayIndex, 'normal', false);
           break;
         case constant_ABC_T2_Normal:
+        case constant_ABC_T2_Accent:
           setFunction(displayIndex, 'normal', false);
           break;
         case constant_ABC_T4_Normal:
+        case constant_ABC_T4_Accent:
           setFunction(displayIndex, 'normal', false);
           break;
         case constant_ABC_SN_Ghost:

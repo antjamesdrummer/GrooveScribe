@@ -15,7 +15,9 @@ import {
   constant_ABC_HH_Normal,
   constant_ABC_HH_Open,
   constant_ABC_HH_Ride,
+  constant_ABC_HH_Ride_Accent,
   constant_ABC_HH_Ride_Bell,
+  constant_ABC_HH_Ride_Bell_Accent,
   constant_ABC_HH_Stacker,
   constant_ABC_KI_Normal,
   constant_ABC_KI2_Normal,
@@ -28,9 +30,13 @@ import {
   constant_ABC_SN_Ghost,
   constant_ABC_SN_Normal,
   constant_ABC_SN_XStick,
+  constant_ABC_T1_Accent,
   constant_ABC_T1_Normal,
+  constant_ABC_T2_Accent,
   constant_ABC_T2_Normal,
+  constant_ABC_T3_Accent,
   constant_ABC_T3_Normal,
+  constant_ABC_T4_Accent,
   constant_ABC_T4_Normal,
   constant_NUMBER_OF_TOMS,
   constant_OUR_MIDI_HIHAT_ACCENT,
@@ -278,8 +284,16 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
         case constant_ABC_HH_Ride: // ride
           hh_note = constant_OUR_MIDI_HIHAT_RIDE;
           break;
+        case constant_ABC_HH_Ride_Accent: // ride, louder
+          hh_note = constant_OUR_MIDI_HIHAT_RIDE;
+          hh_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
+          break;
         case constant_ABC_HH_Ride_Bell: // ride bell
           hh_note = constant_OUR_MIDI_HIHAT_RIDE_BELL;
+          break;
+        case constant_ABC_HH_Ride_Bell_Accent: // ride bell, louder
+          hh_note = constant_OUR_MIDI_HIHAT_RIDE_BELL;
+          hh_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
           break;
         case constant_ABC_HH_Cow_Bell: // cow bell
           hh_note = constant_OUR_MIDI_HIHAT_COW_BELL;
@@ -487,17 +501,30 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
       if (Toms_Array) {
         for (var which_array = 0; which_array < constant_NUMBER_OF_TOMS; which_array++) {
           var tom_note = false;
+          var tom_velocity = constant_OUR_MIDI_VELOCITY_NORMAL;
           if (Toms_Array[which_array][i] !== undefined) {
             switch (Toms_Array[which_array][i]) {
+              case constant_ABC_T1_Accent:
+                tom_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
+              // falls through
               case constant_ABC_T1_Normal: // Tom 1
                 tom_note = constant_OUR_MIDI_TOM1_NORMAL; // midi code High tom 2
                 break;
+              case constant_ABC_T2_Accent:
+                tom_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
+              // falls through
               case constant_ABC_T2_Normal: // Midi code Mid tom 1
                 tom_note = constant_OUR_MIDI_TOM2_NORMAL;
                 break;
+              case constant_ABC_T3_Accent:
+                tom_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
+              // falls through
               case constant_ABC_T3_Normal: // Midi code Mid tom 2
                 tom_note = constant_OUR_MIDI_TOM3_NORMAL;
                 break;
+              case constant_ABC_T4_Accent:
+                tom_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
+              // falls through
               case constant_ABC_T4_Normal: // Midi code Low Tom 1
                 tom_note = constant_OUR_MIDI_TOM4_NORMAL;
                 break;
@@ -509,12 +536,7 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
             }
           }
           if (tom_note !== false) {
-            midiTrack.addNoteOn(
-              midi_channel,
-              tom_note,
-              delay_for_next_note,
-              constant_OUR_MIDI_VELOCITY_NORMAL
-            );
+            midiTrack.addNoteOn(midi_channel, tom_note, delay_for_next_note, tom_velocity);
             delay_for_next_note = 0; // zero the delay
           }
         }
