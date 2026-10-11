@@ -133,10 +133,17 @@ describe('GrooveUtils URL serialization (extended)', () => {
       }
     });
 
-    it('clamps values above constant_MAX_MEASURES (10) down to 10', () => {
+    it('clamps values above constant_MAX_MEASURES (16) down to 16', () => {
       const gd = gu.getGrooveDataFromUrlString('?TimeSig=4/4&Div=16&Measures=999');
-      expect(gd.numberOfMeasures).toBe(10);
-      expect(gd.hh_array).toHaveLength(160);
+      expect(gd.numberOfMeasures).toBe(16);
+      expect(gd.hh_array).toHaveLength(256);
+    });
+
+    it('keeps a 16-bar piece whole, so a host playhead over the whole groove lines up', () => {
+      const bars = Array(16).fill('xxxx').join('|');
+      const gd = gu.getGrooveDataFromUrlString(`?TimeSig=4/4&Div=4&Measures=16&H=|${bars}|`);
+      expect(gd.numberOfMeasures).toBe(16);
+      expect(gd.hh_array).toHaveLength(64);
     });
 
     it('defaults to 1 measure when the param is absent', () => {

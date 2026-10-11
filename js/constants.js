@@ -2,7 +2,12 @@
 // Extracted from groove_utils.js (Step 2 of the refactor). Both groove_utils.js
 // and groove_writer.js import what they need from here.
 
-export const constant_MAX_MEASURES = 10;
+// The longest piece a groove can hold. 16 because a 16-bar solo is the longest
+// thing in the Book of Drum Stars, and a host driving the embed's playhead
+// (js/hostPlayhead.js) works in fractions of the WHOLE groove: when this was 10,
+// a 16-bar link drew ten bars, and the highlight on it ran at 10/16 of the
+// host's click, looking like a slow drift rather than a cut-off piece.
+export const constant_MAX_MEASURES = 16;
 export const constant_DEFAULT_TEMPO = 80;
 export const constant_ABC_STICK_R = '"R"x';
 export const constant_ABC_STICK_L = '"L"x';

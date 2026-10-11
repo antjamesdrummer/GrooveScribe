@@ -32,7 +32,7 @@ import { newGrooveWriter, buildGridDOM } from '../helpers/loadGrooveWriter.js';
 // tests/groove_utils/tempo-swing.test.js); it does not throw and does not
 // fail these tests.
 const ABC_CONSTANTS = {
-  constant_MAX_MEASURES: 10,
+  constant_MAX_MEASURES: 16,
   constant_DEFAULT_TEMPO: 80,
   constant_ABC_STICK_R: '"R"x',
   constant_ABC_STICK_L: '"L"x',
