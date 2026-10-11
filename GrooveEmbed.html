@@ -18,6 +18,15 @@
 		// to work that out before they can practise. Default stays on, so every
 		// other embed is unchanged.
 		var showPlayer = getQueryVariableFromString("Player", "on", location.search) !== "off";
-		GrooveDisplay.AddGrooveDisplayToPage(location.search, showPlayer, true);
+
+		// The notation is a link to the editor, which is right for an embed on
+		// somebody's blog and wrong inside a host page: a click replaces the
+		// notation with the whole editor, squeezed into a frame sized for one
+		// stave, and there is no way back. So a host that has taken the player
+		// away gets no link either, and Link=off asks for the same with the
+		// player kept — a "listen to this" view that should stay what it is.
+		var linkToEditor =
+			showPlayer && getQueryVariableFromString("Link", "on", location.search) !== "off";
+		GrooveDisplay.AddGrooveDisplayToPage(location.search, showPlayer, linkToEditor);
 	</script>
 
