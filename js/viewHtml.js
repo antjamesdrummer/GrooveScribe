@@ -6,6 +6,34 @@
 // context object / arguments, so GrooveWriter (which owns that state) delegates
 // its HTMLforStaffContainer / HTMLforPermutationOptions methods here.
 
+/**
+ * The accent and flam marks drawn on a tom cell, both hidden until set.
+ *
+ * Read back by colour in gridState.get_tom_state, as every grid mark is: the
+ * accent is the snare's chevron in the snare accent's white, so it shows on
+ * the filled circle; the flam is a small slashed grace note at the circle's
+ * top left, in the note colour.
+ *
+ * @param {number} tomNum  1, 2 or 4 — the row
+ * @param {number} i  the cell index
+ * @returns {string}
+ */
+function tomMarksHtml(tomNum, i) {
+  var id = tomNum + '-' + i;
+  return (
+    '<div class="tom_accent note_part" id="tom_accent' +
+    id +
+    '"><i class="fa fa-chevron-right"></i></div>' +
+    '<div class="tom_flam note_part" id="tom_flam' +
+    id +
+    '"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16">' +
+    '<ellipse cx="4" cy="12.5" rx="3.2" ry="2.2" transform="rotate(-20 4 12.5)" fill="currentColor"></ellipse>' +
+    '<path d="M7 12V1.5" stroke="currentColor" stroke-width="1.2" fill="none"></path>' +
+    '<path d="M3 8.5l7-4" stroke="currentColor" stroke-width="1.2" fill="none"></path>' +
+    '</svg></div>'
+  );
+}
+
 export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
   var newHTML =
     '\
@@ -293,7 +321,9 @@ export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
       ')">\
 							<div class="tom_circle note_part"  id="tom_circle1-' +
       i +
-      '"></div>\
+      '"></div>' +
+      tomMarksHtml(1, i) +
+      '\
 						</div>\n\
 						';
 
@@ -332,7 +362,9 @@ export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
       ')">\
 							<div class="tom_circle note_part"  id="tom_circle2-' +
       i +
-      '"></div>\
+      '"></div>' +
+      tomMarksHtml(2, i) +
+      '\
 						</div>\n\
 						';
 
@@ -465,7 +497,9 @@ export function buildStaffContainerHTML(baseindex, indexStartForNotes, ctx) {
       ')">\
 							<div class="tom_circle note_part"  id="tom_circle4-' +
       i +
-      '"></div>\
+      '"></div>' +
+      tomMarksHtml(4, i) +
+      '\
 						</div>\n\
 						';
 

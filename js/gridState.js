@@ -41,8 +41,14 @@ import {
   constant_ABC_STICK_L,
   constant_ABC_STICK_OFF,
   constant_ABC_STICK_R,
+  constant_ABC_T1_Accent,
+  constant_ABC_T1_Flam,
   constant_ABC_T1_Normal,
+  constant_ABC_T2_Accent,
+  constant_ABC_T2_Flam,
   constant_ABC_T2_Normal,
+  constant_ABC_T4_Accent,
+  constant_ABC_T4_Flam,
   constant_ABC_T4_Normal,
   constant_note_on_color_rgb,
   constant_snare_accent_on_color_rgb,
@@ -111,6 +117,13 @@ export function get_snare_state(id, returnType) {
   else if (returnType == 'URL') return '-'; // off (rest)
 }
 
+/** The grid's three tom rows (the 4-tom T3 has no row), by row number. */
+var TOM_ABC = {
+  1: { normal: constant_ABC_T1_Normal, accent: constant_ABC_T1_Accent, flam: constant_ABC_T1_Flam },
+  2: { normal: constant_ABC_T2_Normal, accent: constant_ABC_T2_Accent, flam: constant_ABC_T2_Flam },
+  4: { normal: constant_ABC_T4_Normal, accent: constant_ABC_T4_Accent, flam: constant_ABC_T4_Flam },
+};
+
 export function is_tom_on(id, tom_num) {
   var state = get_tom_state(id, tom_num, 'ABC');
 
@@ -129,20 +142,22 @@ export function get_tom_state(id, tom_num, returnType) {
     returnType = 'ABC';
   }
 
+  // The flam and accent marks sit on a filled circle, so they are read first:
+  // a filled circle alone is a plain tom.
   if (tomOn) {
-    if (returnType == 'ABC')
-      switch (tom_num) {
-        case 1:
-          return constant_ABC_T1_Normal; // normal
-        case 2:
-          return constant_ABC_T2_Normal; // normal (mid tom)
-        case 4:
-          return constant_ABC_T4_Normal; // normal
-        default:
-          console.log('bad switch in get_tom_state. bad tom num:' + tom_num);
-          break;
-      }
-    else if (returnType == 'URL') return 'x'; // normal
+    var flamOn =
+      document.getElementById('tom_flam' + tom_num + '-' + id).style.color ==
+      constant_note_on_color_rgb;
+    var accentOn =
+      document.getElementById('tom_accent' + tom_num + '-' + id).style.color ==
+      constant_snare_accent_on_color_rgb;
+    var abc = TOM_ABC[tom_num];
+    if (!abc) {
+      console.log('bad switch in get_tom_state. bad tom num:' + tom_num);
+    } else if (returnType == 'ABC') {
+      return flamOn ? abc.flam : accentOn ? abc.accent : abc.normal;
+    }
+    if (returnType == 'URL') return flamOn ? 'f' : accentOn ? 'O' : 'x';
   }
 
   if (returnType == 'ABC')

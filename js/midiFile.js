@@ -31,14 +31,19 @@ import {
   constant_ABC_SN_Normal,
   constant_ABC_SN_XStick,
   constant_ABC_T1_Accent,
+  constant_ABC_T1_Flam,
   constant_ABC_T1_Normal,
   constant_ABC_T2_Accent,
+  constant_ABC_T2_Flam,
   constant_ABC_T2_Normal,
   constant_ABC_T3_Accent,
+  constant_ABC_T3_Flam,
   constant_ABC_T3_Normal,
   constant_ABC_T4_Accent,
+  constant_ABC_T4_Flam,
   constant_ABC_T4_Normal,
   constant_NUMBER_OF_TOMS,
+  constant_OUR_MIDI_FLAM_GRACE_TICKS,
   constant_OUR_MIDI_HIHAT_ACCENT,
   constant_OUR_MIDI_CYMBAL_CHINA,
   constant_OUR_MIDI_CYMBAL_SPLASH,
@@ -112,6 +117,37 @@ export function MIDI_build_midi_url_count_in_track(gu, timeSigTop, timeSigBottom
   return midi_url;
 }
 
+/**
+ * The MIDI notes of every tom flammed at one step of the groove.
+ *
+ * @param {Array<Array<string|false>>|undefined} Toms_Array
+ * @param {number} index
+ * @returns {number[]}
+ */
+function tomFlamNotesAt(Toms_Array, index) {
+  var notes = [];
+  if (!Toms_Array) return notes;
+  for (var t = 0; t < constant_NUMBER_OF_TOMS; t++) {
+    switch (Toms_Array[t] && Toms_Array[t][index]) {
+      case constant_ABC_T1_Flam:
+        notes.push(constant_OUR_MIDI_TOM1_NORMAL);
+        break;
+      case constant_ABC_T2_Flam:
+        notes.push(constant_OUR_MIDI_TOM2_NORMAL);
+        break;
+      case constant_ABC_T3_Flam:
+        notes.push(constant_OUR_MIDI_TOM3_NORMAL);
+        break;
+      case constant_ABC_T4_Flam:
+        notes.push(constant_OUR_MIDI_TOM4_NORMAL);
+        break;
+      default:
+        break;
+    }
+  }
+  return notes;
+}
+
 export function MIDI_from_HH_Snare_Kick_Arrays(
   gu,
   midiTrack,
@@ -148,6 +184,7 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
   var isTriplets = isTripletDivisionFromNotesPerMeasure(num_notes, timeSigTop, timeSigBottom);
   var offsetClickStartBeat = gu.getMetronomeOptionsOffsetClickStartRotation(isTriplets);
   var delay_for_next_note = 0;
+  var flam_carry = 0; // ticks the first step's tom flam pushed its main stroke late
 
   for (var i = 0; i < num_notes; i++) {
     var duration = 0;
@@ -507,24 +544,28 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
               case constant_ABC_T1_Accent:
                 tom_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
               // falls through
+              case constant_ABC_T1_Flam: // grace booked in the step before
               case constant_ABC_T1_Normal: // Tom 1
                 tom_note = constant_OUR_MIDI_TOM1_NORMAL; // midi code High tom 2
                 break;
               case constant_ABC_T2_Accent:
                 tom_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
               // falls through
+              case constant_ABC_T2_Flam: // grace booked in the step before
               case constant_ABC_T2_Normal: // Midi code Mid tom 1
                 tom_note = constant_OUR_MIDI_TOM2_NORMAL;
                 break;
               case constant_ABC_T3_Accent:
                 tom_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
               // falls through
+              case constant_ABC_T3_Flam: // grace booked in the step before
               case constant_ABC_T3_Normal: // Midi code Mid tom 2
                 tom_note = constant_OUR_MIDI_TOM3_NORMAL;
                 break;
               case constant_ABC_T4_Accent:
                 tom_velocity = constant_OUR_MIDI_VELOCITY_ACCENT;
               // falls through
+              case constant_ABC_T4_Flam: // grace booked in the step before
               case constant_ABC_T4_Normal: // Midi code Low Tom 1
                 tom_note = constant_OUR_MIDI_TOM4_NORMAL;
                 break;
@@ -536,6 +577,21 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
             }
           }
           if (tom_note !== false) {
+            if (i === 0 && !flam_carry && tomFlamNotesAt(Toms_Array, 0).length) {
+              // The first step has no step before it to book the grace in, so
+              // the grace goes on the beat and the main stroke just after.
+              tomFlamNotesAt(Toms_Array, 0).forEach(function (grace_note) {
+                midiTrack.addNoteOn(
+                  midi_channel,
+                  grace_note,
+                  delay_for_next_note,
+                  constant_OUR_MIDI_VELOCITY_GHOST
+                );
+                delay_for_next_note = 0;
+              });
+              delay_for_next_note = constant_OUR_MIDI_FLAM_GRACE_TICKS;
+              flam_carry = constant_OUR_MIDI_FLAM_GRACE_TICKS;
+            }
             midiTrack.addNoteOn(midi_channel, tom_note, delay_for_next_note, tom_velocity);
             delay_for_next_note = 0; // zero the delay
           }
@@ -543,7 +599,27 @@ export function MIDI_from_HH_Snare_Kick_Arrays(
       }
     } // end metronomeSolo
 
-    delay_for_next_note += duration;
+    // A tom flam on the NEXT step has its grace stroke booked here, just before
+    // that step starts, so the main stroke still lands on its beat.
+    var step_length = duration - flam_carry;
+    flam_carry = 0;
+    var next_graces =
+      !gu.metronomeSolo && i + 1 < num_notes ? tomFlamNotesAt(Toms_Array, i + 1) : [];
+    if (next_graces.length && step_length > constant_OUR_MIDI_FLAM_GRACE_TICKS) {
+      delay_for_next_note += step_length - constant_OUR_MIDI_FLAM_GRACE_TICKS;
+      next_graces.forEach(function (grace_note) {
+        midiTrack.addNoteOn(
+          midi_channel,
+          grace_note,
+          delay_for_next_note,
+          constant_OUR_MIDI_VELOCITY_GHOST
+        );
+        delay_for_next_note = 0;
+      });
+      delay_for_next_note += constant_OUR_MIDI_FLAM_GRACE_TICKS;
+    } else {
+      delay_for_next_note += step_length;
+    }
   }
 
   if (delay_for_next_note) midiTrack.addNoteOff(0, 60, delay_for_next_note - 1); // add a blank note for spacing

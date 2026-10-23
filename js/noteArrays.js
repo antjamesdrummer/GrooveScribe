@@ -36,12 +36,16 @@ import {
   constant_ABC_STICK_OFF,
   constant_ABC_STICK_R,
   constant_ABC_T1_Accent,
+  constant_ABC_T1_Flam,
   constant_ABC_T1_Normal,
   constant_ABC_T2_Accent,
+  constant_ABC_T2_Flam,
   constant_ABC_T2_Normal,
   constant_ABC_T3_Accent,
+  constant_ABC_T3_Flam,
   constant_ABC_T3_Normal,
   constant_ABC_T4_Accent,
+  constant_ABC_T4_Flam,
   constant_ABC_T4_Normal,
   constant_NUMBER_OF_TOMS,
 } from './constants.js';
@@ -65,7 +69,20 @@ function tablatureToABCNotationPerNote(drumType, tablatureChar) {
       if (drumType == 'S') return constant_ABC_SN_Drag;
       break;
     case 'f':
-      if (drumType == 'S') return constant_ABC_SN_Flam;
+      switch (drumType) {
+        case 'S':
+          return constant_ABC_SN_Flam;
+        case 'T1':
+          return constant_ABC_T1_Flam;
+        case 'T2':
+          return constant_ABC_T2_Flam;
+        case 'T3':
+          return constant_ABC_T3_Flam;
+        case 'T4':
+          return constant_ABC_T4_Flam;
+        default:
+          break;
+      }
       break;
     case 'g':
       if (drumType == 'S') return constant_ABC_SN_Ghost;
@@ -292,6 +309,10 @@ function abcNotationToTablaturePerNote(drumType, abcChar) {
       tabChar = 'o';
       break;
     case constant_ABC_SN_Flam:
+    case constant_ABC_T1_Flam:
+    case constant_ABC_T2_Flam:
+    case constant_ABC_T3_Flam:
+    case constant_ABC_T4_Flam:
       tabChar = 'f';
       break;
     case constant_ABC_SN_Drag:

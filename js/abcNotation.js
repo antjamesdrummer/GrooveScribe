@@ -101,6 +101,11 @@ function getABCforNote(note_array_of_arrays, start_index, end_of_group, scaler) 
 
     // this is the flam notation, it can't be in a sub grouping
     ABC_String += moveAccentsOrOtherModifiersOutsideOfGroup(abcNoteStrings, '{/c}');
+    // the tom flams, the same grace on each tom's own line
+    ABC_String += moveAccentsOrOtherModifiersOutsideOfGroup(abcNoteStrings, '{/e}');
+    ABC_String += moveAccentsOrOtherModifiersOutsideOfGroup(abcNoteStrings, '{/d}');
+    ABC_String += moveAccentsOrOtherModifiersOutsideOfGroup(abcNoteStrings, '{/B}');
+    ABC_String += moveAccentsOrOtherModifiersOutsideOfGroup(abcNoteStrings, '{/A}');
     // this is the drag notation, it can't be in a sub grouping
     ABC_String += moveAccentsOrOtherModifiersOutsideOfGroup(abcNoteStrings, '{/cc}');
 

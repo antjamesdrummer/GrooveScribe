@@ -17,7 +17,7 @@ build step). A groove is encoded in the URL, rendered to sheet music as SVG
 
 | Command                | Expectation                                                                                                                                                                         |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`             | Vitest unit suite — **724 pass**                                                                                                                                                    |
+| `npm test`             | Vitest unit suite — **766 pass**                                                                                                                                                    |
 | `npm run test:e2e`     | Playwright golden-master — **90 pass**. Byte-identical SVG+MIDI snapshots; this is the real proof that a refactor changed nothing functional. **Linux-only baselines — see below.** |
 | `npm run lint`         | ESLint — **0 errors** (~82 SonarJS _warnings_ are an accepted refactor backlog, not failures)                                                                                       |
 | `npm run typecheck`    | `tsc --noEmit` checkJs via JSDoc — ~296 known errors baseline; changes should be typecheck-**neutral**                                                                              |
@@ -134,6 +134,26 @@ A china (`c`) or a splash (`s`), on their own row above the hi-hat.
 - **A left click cycles** off → splash → china → off, because the row has two
   articulations and no default. Every other note row toggles; the sticking row
   already rotates.
+
+### Tom accents and flams (`O` and `f` in a tom lane)
+
+The same letters the snare uses. Both are on each tom's right-click menu
+("Tom Accent", "Tom Flam") and are drawn on the grid cell as marks over the
+filled circle: the snare's chevron for the accent, a small slashed grace note
+at the top left for the flam (`tomMarksHtml` in `viewHtml.js`, read back by
+colour in `gridState.get_tom_state`).
+
+- **The tom flam has no accent mark**, unlike `constant_ABC_SN_Flam`. That
+  accent is a quirk of the one snare constant; write `O` for an accent.
+- **It plays as two strokes.** The snare flam is its own soundfont note (107);
+  nothing like it exists for a tom. So the grace (ghost velocity) is booked
+  `constant_OUR_MIDI_FLAM_GRACE_TICKS` before the step, inside the step before
+  it, and the main stroke stays on its beat. Toms are the last thing written in
+  a step, which is what makes booking the next step's grace there safe. A flam
+  on the very first step has no step before it: its grace goes on the beat and
+  the main stroke just after, and the next step is shortened to match.
+- **Its grace is lifted out of a chord** in `abcNotation.js`, as the snare
+  flam's `{/c}` already was — a grace inside `[...]` is invalid ABC.
 
 ## Conventions & gotchas
 

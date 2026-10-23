@@ -1050,3 +1050,27 @@ input[type='checkbox']:not(:checked) + label {
   color: transparent;
   cursor: pointer;
 }
+
+/* Tom accent and flam marks, drawn over the tom circle (see tomMarksHtml). */
+.tom_accent {
+  position: absolute;
+  top: 4px;
+  left: 10px;
+  line-height: 15px;
+  font-size: 13px;
+  color: transparent;
+  cursor: pointer;
+  pointer-events: none;
+}
+.tom_flam {
+  position: absolute;
+  top: -9px;
+  left: -5px;
+  width: 12px;
+  height: 16px;
+  color: transparent;
+  pointer-events: none;
+}
+.tom_flam svg {
+  display: block;
+}

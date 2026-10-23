@@ -91,13 +91,39 @@ export const constant_ABC_T2_Normal = 'd';
 export const constant_ABC_T3_Normal = 'B';
 export const constant_ABC_T4_Normal = 'A';
 /**
- * Accented toms: O in a tom lane, as it is in the snare's. Like the accented
- * ride they come only from a link; the grid writes a plain tom.
+ * Accented toms: O in a tom lane, as it is in the snare's. Set from a tom's
+ * right-click menu ("Tom Accent") or from a link.
  */
 export const constant_ABC_T1_Accent = '!accent!e';
 export const constant_ABC_T2_Accent = '!accent!d';
 export const constant_ABC_T3_Accent = '!accent!B';
 export const constant_ABC_T4_Accent = '!accent!A';
+/**
+ * Tom flams: f in a tom lane, as it is in the snare's.
+ *
+ * A slashed grace note on the same drum, the snare flam's shape moved to the
+ * tom's own line. Unlike the snare flam it carries no accent mark: the snare
+ * flam's accent is a long-standing quirk of that one constant, and a fill
+ * written with flams on the toms does not ask for every one to be accented.
+ * Write O for an accent.
+ *
+ * No soundfont sample exists for a tom flam (the snare's is its own custom
+ * note, 107), so playback sounds it as two strokes: see
+ * constant_OUR_MIDI_FLAM_GRACE_TICKS.
+ */
+export const constant_ABC_T1_Flam = '{/e}e';
+export const constant_ABC_T2_Flam = '{/d}d';
+export const constant_ABC_T3_Flam = '{/B}B';
+export const constant_ABC_T4_Flam = '{/A}A';
+/**
+ * How far ahead of a tom flam's main stroke its grace stroke sounds, in MIDI
+ * ticks (128 to the quarter note). 6 is about 35ms at 80 BPM and 14ms at 200:
+ * close enough to read as one flammed note rather than two, far enough apart
+ * to hear the grace. It must stay below the shortest step the MIDI writer uses
+ * (10.666 ticks, a 48th-note triplet), because the grace is booked inside the
+ * step before.
+ */
+export const constant_OUR_MIDI_FLAM_GRACE_TICKS = 6;
 export const constant_NUMBER_OF_TOMS = 4;
 export const constant_ABC_OFF = false;
 export const constant_OUR_MIDI_VELOCITY_NORMAL = 85;

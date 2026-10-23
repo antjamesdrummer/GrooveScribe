@@ -58,10 +58,13 @@ import {
   constant_ABC_STICK_OFF,
   constant_ABC_STICK_R,
   constant_ABC_T1_Accent,
+  constant_ABC_T1_Flam,
   constant_ABC_T1_Normal,
   constant_ABC_T2_Accent,
+  constant_ABC_T2_Flam,
   constant_ABC_T2_Normal,
   constant_ABC_T4_Accent,
+  constant_ABC_T4_Flam,
   constant_ABC_T4_Normal,
   constant_OUR_MIDI_HIHAT_ACCENT,
   constant_OUR_MIDI_CYMBAL_CHINA,
@@ -273,40 +276,45 @@ function GrooveWriter() {
   // false = off
   // "x" = normal tom
 
-  // set the tom note on with type
+  // set the tom note on with type: off, normal, accent or flam
   function set_tom_state(id, tom_num, mode, make_sound) {
-    // turn stuff on conditionally
+    var cellId = tom_num + '-' + id;
+    var circle = document.getElementById('tom_circle' + cellId);
+    var accentMark = document.getElementById('tom_accent' + cellId);
+    var flamMark = document.getElementById('tom_flam' + cellId);
+    // hide the marks; each mode below turns on what it needs
+    accentMark.style.color = constant_note_hidden_color_rgb;
+    flamMark.style.color = constant_note_hidden_color_rgb;
+    circle.style.borderColor = constant_note_border_color_hex;
+
     switch (mode) {
       case 'off':
-        document.getElementById('tom_circle' + tom_num + '-' + id).style.backgroundColor =
-          constant_note_off_color_hex;
-        document.getElementById('tom_circle' + tom_num + '-' + id).style.borderColor =
-          constant_note_border_color_hex;
-        break;
+        circle.style.backgroundColor = constant_note_off_color_hex;
+        return;
       case 'normal':
-        document.getElementById('tom_circle' + tom_num + '-' + id).style.backgroundColor =
-          constant_note_on_color_hex;
-        document.getElementById('tom_circle' + tom_num + '-' + id).style.borderColor =
-          constant_note_border_color_hex;
-        if (make_sound)
-          switch (tom_num) {
-            case 1:
-              play_single_note_for_note_setting(constant_OUR_MIDI_TOM1_NORMAL);
-              break;
-            case 2:
-              play_single_note_for_note_setting(constant_OUR_MIDI_TOM2_NORMAL);
-              break;
-            case 4:
-              play_single_note_for_note_setting(constant_OUR_MIDI_TOM4_NORMAL);
-              break;
-            default:
-              console.log('bad switch in set_tom_state. bad tom num:' + tom_num);
-              break;
-          }
+        circle.style.backgroundColor = constant_note_on_color_hex;
+        break;
+      case 'accent':
+        circle.style.backgroundColor = constant_note_on_color_hex;
+        accentMark.style.color = constant_snare_accent_on_color_hex;
+        break;
+      case 'flam':
+        circle.style.backgroundColor = constant_note_on_color_hex;
+        flamMark.style.color = constant_note_on_color_hex;
         break;
       default:
         console.log('bad switch in set_tom_state');
-        break;
+        return;
+    }
+
+    if (make_sound) {
+      var midiNote = {
+        1: constant_OUR_MIDI_TOM1_NORMAL,
+        2: constant_OUR_MIDI_TOM2_NORMAL,
+        4: constant_OUR_MIDI_TOM4_NORMAL,
+      }[tom_num];
+      if (midiNote) play_single_note_for_note_setting(midiNote);
+      else console.log('bad switch in set_tom_state. bad tom num:' + tom_num);
     }
   }
 
@@ -3569,16 +3577,31 @@ function GrooveWriter() {
           setFunction(displayIndex, 'normal', false);
           break;
         case constant_ABC_T1_Normal:
-        case constant_ABC_T1_Accent:
           setFunction(displayIndex, 'normal', false);
+          break;
+        case constant_ABC_T1_Accent:
+          setFunction(displayIndex, 'accent', false);
+          break;
+        case constant_ABC_T1_Flam:
+          setFunction(displayIndex, 'flam', false);
           break;
         case constant_ABC_T2_Normal:
-        case constant_ABC_T2_Accent:
           setFunction(displayIndex, 'normal', false);
           break;
+        case constant_ABC_T2_Accent:
+          setFunction(displayIndex, 'accent', false);
+          break;
+        case constant_ABC_T2_Flam:
+          setFunction(displayIndex, 'flam', false);
+          break;
         case constant_ABC_T4_Normal:
-        case constant_ABC_T4_Accent:
           setFunction(displayIndex, 'normal', false);
+          break;
+        case constant_ABC_T4_Accent:
+          setFunction(displayIndex, 'accent', false);
+          break;
+        case constant_ABC_T4_Flam:
+          setFunction(displayIndex, 'flam', false);
           break;
         case constant_ABC_SN_Ghost:
           setFunction(displayIndex, 'ghost', false);
